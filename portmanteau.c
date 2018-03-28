@@ -23,6 +23,7 @@ void initTUI(void) {
 	init_pair(7, COLOR_BLUE, COLOR_BLUE);
 	init_pair(8, COLOR_WHITE, COLOR_WHITE);
 	init_pair(9, COLOR_CYAN, COLOR_CYAN);
+	setlocale(LC_ALL, "");
 }
 
 int main(int argc, char **argv) {
