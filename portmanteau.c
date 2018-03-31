@@ -29,6 +29,7 @@ void initTUI(void) {
 int main(int argc, char **argv) {
 	initTUI();
 	initMenu();
+	srand((unsigned int) time(NULL));
 	const char *selection = NULL;
 		selection = displayMenu();
 		if (strcmp(selection, "Play") == 0) {

@@ -1,6 +1,9 @@
 #include "words.h"
 #include "letter.h"
 
+const int chainMultipliers[] = {1, 2, 5, 10, 17, 26, 37};
+const int lengthMultipliers[] = {0, 0, 0, 9, 23, 49, 73, 256};
+
 struct dictionary *loadDict(char *filename) {
 	struct dictionary *dict = malloc(sizeof(struct dictionary));
 	char **words = NULL;
@@ -95,5 +98,5 @@ int wordScore(char *word) {
 	for (int i = 0; i < strlen(word); i++) {
 		wordScore += pointValue(word[i]);
 	}
-	return wordScore * SCORE_MULTIPLIER;
+	return wordScore * lengthMultipliers[strlen(word)];
 }

@@ -3,9 +3,11 @@
 char board[BOARD_WIDTH][BOARD_HEIGHT];
 char *recentBreaks[N_RECENT_BREAKS];
 char dropChar;
-int score = 0, selectedCol = 3;
+int selectedCol = 3, boardwin_pos_x;
 WINDOW *mainwin, *boardwin;
-int boardwin_pos_x;
+struct stats game_stats;
+const struct timespec gravity_delay = {0, 1000000L * GRAV_DELAY_MS},
+                      chain_delay = {0, 1000000L * CHAIN_DELAY_MS};
 
 struct dictionary *getDict(void) {
 	static struct dictionary *dict;
@@ -19,6 +21,9 @@ struct dictionary *getDict(void) {
 
 void pushRecentBreak(char *word) {
 	int i;
+	if (strlen(word) > game_stats.longest_word) {
+		game_stats.longest_word = strlen(word);
+	}
 	for (i = N_RECENT_BREAKS - 1; i > 0; i--) {
 		recentBreaks[i] = recentBreaks[i - 1];
 	}
@@ -40,7 +45,7 @@ void drawScore(void) {
 		mvwaddch(boardwin, 1, c, ' ');
 		c++;
 	}
-	mvwprintw(boardwin, 1, 2, "Score: %d", score);
+	mvwprintw(boardwin, 1, 2, "Score: %d", game_stats.score);
 	wrefresh(boardwin);
 }
 
@@ -132,7 +137,7 @@ void initBoard(void) {
 	#else
 	for (int c = 0; c < BOARD_RAND_HEIGHT; c++) {
 		for (int r = 0; r < BOARD_WIDTH; r++) {
-			board[c][r] = saneRandChar();
+			board[c][r] = getNextDropChar(game_stats.n_moves);
 		}
 	}
 	#endif
@@ -149,6 +154,8 @@ void dropGravity(int dropCol) {
 				// create space in the recently-vacated spots
 				board[dropCol][r2 - 1] = BLANK;
 				r2++;
+				nanosleep(&gravity_delay, NULL);
+				drawBoard();
 			}
 		}
 	}
@@ -176,6 +183,12 @@ void breakWords(int chainLevel) {
 	int n_wordsToCheck = 0;
 	uint8_t anyWordsBroken = 0;
 	int c = 0;
+	if (chainLevel > 1) {
+		nanosleep(&chain_delay, NULL); // delay to let user process words broken
+	}
+	if (chainLevel > game_stats.longest_chain) {
+		game_stats.longest_chain = chainLevel;
+	}
 	// read the board for "words," beginning with columns
 	for (c = 0; c < BOARD_WIDTH; c++) {
 		if (board[c][BOARD_HEIGHT - 1] != BLANK) {
@@ -237,8 +250,11 @@ void breakWords(int chainLevel) {
 			}
 			breakBoardWord(&wordsToCheck[i]);
 			anyWordsBroken = 1;
-			score += wordScore(s) * (int) pow((double) 2, chainLevel - 1);
-			// TODO: finalize word-length score multipliers
+			game_stats.score += wordScore(s) * chainMultipliers[
+				chainLevel++ < MAX_CHAIN ? chainLevel : MAX_CHAIN
+			] * game_stats.level; // linear multiplier per-level
+			game_stats.n_words_broken += 1;
+			game_stats.n_tiles_broken += strlen(s);
 		}
 		free(s);
 		free(s_rev);
@@ -249,8 +265,7 @@ void breakWords(int chainLevel) {
 	if (anyWordsBroken) {
 		boardGravity();
 		drawBoard();
-		sleep(0.5); // TODO: animation?
-		breakWords(chainLevel + 1); // TODO: finalize chain score multipliers
+		breakWords(chainLevel + 1);
 	}
 }
 
@@ -295,12 +310,14 @@ char *readBoardWord(struct boardWord *bw) {
 
 void play(void) {
 	initBoard();
+	// initialize structs for game statistics and delays
+	game_stats = (struct stats) {0, 0, 1, 0, 0, 0, 0};
 	if (initWindows() != 0) {
 		printf("%s", "There was an error attempting to create the game windows.");
 		return;
 	}
 	int c;
-	dropChar = saneRandChar();
+	dropChar = getNextDropChar(game_stats.n_moves);
 	drawDropChar(DIR_RIGHT);
 	drawScore();
 	drawRecentBreaks();
@@ -323,7 +340,7 @@ void play(void) {
 			case 10: /* enter */
 				if (processDrop(selectedCol) == 0) {
 					drawRecentBreaks();
-					dropChar = saneRandChar();
+					dropChar = getNextDropChar(game_stats.n_moves);
 					drawBoard();
 					drawScore();
 					drawDropChar(DIR_STAY);
