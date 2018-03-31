@@ -1,4 +1,7 @@
 *.o
-bp # don't save breakpoints for GDB
-portmanteau # don't commit the compiled binary
-tags # ignore CTAGS
+# don't save breakpoints for GDB
+bp 
+# don't commit the compiled binary
+./portmanteau
+# ignore CTAGS
+./tags 

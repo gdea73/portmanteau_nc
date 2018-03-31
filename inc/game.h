@@ -20,8 +20,11 @@
 #define DIR_RIGHT 1
 #define DIR_LEFT -1
 #define DIR_STAY 0
-#define MAX_BOARD_WORDS 7 * 5 // TODO: redefine this in terms of BOARD_WIDTH
+#define MAX_BOARD_WORDS 7 * 5
 #define N_RECENT_BREAKS 10
+// minimum terminal dimensions to render the game
+#define MIN_LINES BOARD_WIN_Y + 2 * PAD_Y
+#define MIN_COLS BOARD_WIN_X
 // #define INIT_BOARD_RANDOM
 
 WINDOW *createWindow(int height, int width, int start_y, int start_x);

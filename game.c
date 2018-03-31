@@ -95,7 +95,10 @@ int initWindows(void) {
 	refresh();
 	int termwidth = getmaxx(stdscr);
 	int termheight = getmaxy(stdscr);
-	if (termwidth < 80 || termheight < 23 || (mainwin = initscr()) == NULL) {
+	if (
+		termwidth < MIN_COLS || termheight < MIN_LINES
+		|| (mainwin = initscr()) == NULL
+	) {
 		return 1;
 	}
 	box(mainwin, 0, 0);
@@ -290,7 +293,7 @@ void play(void) {
 	while ((c = getch()) != 'q') {
 		if (dropChar == '*') {
 			if (c > 64 && c < 91) {
-				// assign an arbitrary letter to a blank ('*')
+				// assign an arbitrary (capital) letter to a blank ('*')
 				dropChar = c;
 				drawDropChar(DIR_STAY);
 			}
@@ -310,6 +313,22 @@ void play(void) {
 					drawScore();
 					drawRecentBreaks();
 					drawDropChar(DIR_STAY);
+				}
+				break;
+			case KEY_RESIZE:
+				clear();
+				if (COLS < MIN_COLS || LINES < MIN_LINES) {
+					mvprintw(0, 0, "Term too small!");
+				} else {
+					if (initWindows() != 0) {
+						printf("%s", "There was an error attempting to create "
+									 "the game windows.");
+					} else {
+						drawBoard();
+						drawScore();
+						drawRecentBreaks();
+						drawDropChar(DIR_STAY);
+					}
 				}
 				break;
 			default: /* we don't care about other keys yet */
