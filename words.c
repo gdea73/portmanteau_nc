@@ -79,13 +79,14 @@ uint8_t binSearch(char **words, char *query, size_t startIdx, size_t endIdx) {
 
 char *reverse(char *s) {
 	size_t len = strlen(s);
-	char *rev;
+	char *rev; int i;
 	if (!(rev = calloc(len, sizeof(char)))) {
 		fprintf(stderr, "failed to calloc to reverse string %s", s);
 	}
-	for (int i = 0; i < len; i++) {
+	for (i = 0; i < len; i++) {
 		rev[i] = s[(len - 1) - i];
 	}
+	rev[i] = '\0';
 	return rev;
 }
 

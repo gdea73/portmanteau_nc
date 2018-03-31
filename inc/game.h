@@ -17,14 +17,15 @@
 #define BOARD_WIN_X 25
 #define BOARD_WIN_Y 17
 #define PAD_Y 2
+#define PAD_X 1
 #define DIR_RIGHT 1
 #define DIR_LEFT -1
 #define DIR_STAY 0
 #define MAX_BOARD_WORDS 7 * 5
-#define N_RECENT_BREAKS 10
+#define N_RECENT_BREAKS 13
 // minimum terminal dimensions to render the game
 #define MIN_LINES BOARD_WIN_Y + 2 * PAD_Y
-#define MIN_COLS BOARD_WIN_X
+#define MIN_COLS BOARD_WIN_X + 3 * PAD_Y + 7 // 7 == max width of recent words
 // #define INIT_BOARD_RANDOM
 
 WINDOW *createWindow(int height, int width, int start_y, int start_x);

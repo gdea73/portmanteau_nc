@@ -5,6 +5,7 @@ char *recentBreaks[N_RECENT_BREAKS];
 char dropChar;
 int score = 0, selectedCol = 3;
 WINDOW *mainwin, *boardwin;
+int boardwin_pos_x;
 
 struct dictionary *getDict(void) {
 	static struct dictionary *dict;
@@ -44,15 +45,22 @@ void drawScore(void) {
 }
 
 void drawRecentBreaks(void) {
-	int r = BOARD_WIN_Y + 2 * PAD_Y, i;
-	mvwprintw(mainwin, r, 2, "Recent Words:");
+	int recent_breaks_pos_x = boardwin_pos_x - PAD_X - 7;
+	mvwprintw(mainwin, PAD_Y + 1, recent_breaks_pos_x, "Recent");
+	mvwprintw(mainwin, PAD_Y + 2, recent_breaks_pos_x, "Words:");
+	int i, j;
 	for (i = 0; i < N_RECENT_BREAKS; i++) {
 		if (recentBreaks[i] == NULL) {
 			break;
 		}
-		wmove(mainwin, r + i + 1, 2);
-		wclrtoeol(mainwin);
-		wprintw(mainwin, "%s", recentBreaks[i]);
+		wmove(mainwin, PAD_Y + 3 + i, recent_breaks_pos_x);
+		for (j = 0; j < strlen(recentBreaks[i]); j++) {
+			waddch(mainwin, recentBreaks[i][j]);
+		}
+		while (j < 7) {
+			// erase remnants of previous (longer) words
+			waddch(mainwin, ' '); j++;
+		}
 	}
 }
 
@@ -102,8 +110,12 @@ int initWindows(void) {
 		return 1;
 	}
 	box(mainwin, 0, 0);
-	boardwin = subwin(mainwin, BOARD_WIN_Y, BOARD_WIN_X, PAD_Y, 
-		(termwidth - BOARD_WIN_X) / 2);
+	if (termwidth < BOARD_WIN_X + 7 * 2 + 4 * PAD_X) {
+		boardwin_pos_x = 3 * PAD_X + 7;
+	} else {
+		boardwin_pos_x = (termwidth - BOARD_WIN_X) / 2;
+	}
+	boardwin = subwin(mainwin, BOARD_WIN_Y, BOARD_WIN_X, PAD_Y, boardwin_pos_x);
 	box(boardwin, 0, 0);
 	drawBoard();
 	return 0;
@@ -265,16 +277,18 @@ char *readBoardWord(struct boardWord *bw) {
 	int endCol = bw->endCol, endRow = bw->endRow;
 	if (startCol == endCol) {
 		// parse word vertically
-		s = calloc(endRow - startRow + 1, sizeof(char));
+		s = calloc(endRow - startRow + 2, sizeof(char));
 		for (int r = startRow; r <= endRow; r++) {
 			s[r - startRow] = board[endCol][r];
 		}
+		s[endRow - startRow + 2] = '\0';
 	} else if (startRow == endRow) {
 		// parse word horizontally
-		s = calloc(endCol - startCol + 1, sizeof(char));
+		s = calloc(endCol - startCol + 2, sizeof(char));
 		for (int c = startCol; c <= endCol; c++) {
 			s[c - startCol] = board[c][endRow];
 		}
+		s[endCol - startCol + 2] = '\0';
 	}
 	return s;
 }
@@ -308,10 +322,10 @@ void play(void) {
 				break;
 			case 10: /* enter */
 				if (processDrop(selectedCol) == 0) {
+					drawRecentBreaks();
 					dropChar = saneRandChar();
 					drawBoard();
 					drawScore();
-					drawRecentBreaks();
 					drawDropChar(DIR_STAY);
 				}
 				break;
@@ -324,9 +338,9 @@ void play(void) {
 						printf("%s", "There was an error attempting to create "
 									 "the game windows.");
 					} else {
+						drawRecentBreaks();
 						drawBoard();
 						drawScore();
-						drawRecentBreaks();
 						drawDropChar(DIR_STAY);
 					}
 				}

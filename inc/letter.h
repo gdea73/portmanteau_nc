@@ -15,4 +15,6 @@ int pointValue(char c);
 
 char saneRandChar(void);
 
+char getNextDropChar(int n_moves);
+
 #endif
