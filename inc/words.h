@@ -8,7 +8,6 @@
 #include <stdint.h>
 
 #define WORDSBS 127
-#define SCORE_MULTIPLIER 7
 
 struct dictionary {
 	char **words;
@@ -22,6 +21,8 @@ struct boardWord {
 	int endRow;
 };
 
+extern const int chainMultipliers[];
+extern const int lengthMultipliers[];
 struct dictionary *loadDict(char *filename);
 
 void freeDict(struct dictionary *dict);

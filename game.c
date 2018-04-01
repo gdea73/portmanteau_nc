@@ -251,8 +251,9 @@ void breakWords(int chainLevel) {
 			breakBoardWord(&wordsToCheck[i]);
 			anyWordsBroken = 1;
 			game_stats.score += wordScore(s) * chainMultipliers[
-				chainLevel++ < MAX_CHAIN ? chainLevel : MAX_CHAIN
+				chainLevel < MAX_CHAIN ? chainLevel : MAX_CHAIN
 			] * game_stats.level; // linear multiplier per-level
+			chainLevel++;
 			game_stats.n_words_broken += 1;
 			game_stats.n_tiles_broken += strlen(s);
 		}
