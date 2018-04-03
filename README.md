@@ -1,4 +1,4 @@
-# Portmanteau (```ncurses``` version)
+# Portmanteau: ```ncurses``` edition
 
 ## Description
 
@@ -21,3 +21,7 @@ and using the executable ```portmanteau``` in the build directory.
 
 The user interface was developed with ```ncurses```, so that library is needed
 to build the project. There are no other external dependencies.
+
+## License
+
+This software is made available under the terms of the GNU GPL v3.

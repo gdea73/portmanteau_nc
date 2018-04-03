@@ -106,11 +106,12 @@ int drawBoard(void) {
 		hl_c = game_stats.replace_tile_ID / 7;
 		hl_r = game_stats.replace_tile_ID % 7;
 	}
+	wattron(boardwin, A_BOLD);
 	for (int c = 0; c < BOARD_WIDTH; c++) {
 		for (int r = 0; r < BOARD_HEIGHT; r++) {
 			if (c == hl_c && r == hl_r) {
 				// highlight the tile selected for replacement
-				attron(COLOR_PAIR(3));
+				wattron(boardwin, A_REVERSE);
 			}
 			if (mvwaddch(boardwin, board_y, board_x, board[c][r]) == ERR) {
 				fprintf(
@@ -120,7 +121,7 @@ int drawBoard(void) {
 				);
 				return 1;
 			}
-			attroff(COLOR_PAIR(3));
+			wattroff(boardwin, A_REVERSE);
 			board_y += 2;
 		}
 		board_x += 3;
@@ -362,13 +363,12 @@ void play(void) {
 		1,					// level
 		0,					// longest chain
 		0,					// longest word broken
+		0,					// number of tiles broken
 		0,					// number of words broken
 		0,					// replacement tile ID
 		getNextDropChar(0),	// drop letter
 		NORMAL				// tile replacement status
 	};
-	// TODO: why is this line required when getNextDropChar(0) is called above?
-	game_stats.dropChar = getNextDropChar(game_stats.n_moves);
 	if (initWindows() != 0) {
 		printf("%s", "There was an error attempting to create the game windows.");
 		return;
@@ -421,13 +421,16 @@ void play(void) {
 					break;
 				case 10:
 					// commit the selection
-					game_stats.replace_status = REPLACE;
+					if (board[game_stats.replace_tile_ID / 7]
+						     [game_stats.replace_tile_ID % 7] != BOARD_BLANK) {
+						game_stats.replace_status = REPLACE;
+						draw_message(REPLACE_MESSAGE);
+					}
 					break;
 				default:
 					break;
-				drawBoard();
-				draw_message(REPLACE_MESSAGE);
 			}
+			drawBoard();
 			continue;
 		} else if (game_stats.replace_status == REPLACE) {
 			if (c > 64 && c < 91) {
@@ -435,6 +438,7 @@ void play(void) {
 				     [game_stats.replace_tile_ID % 7] = c;
 				game_stats.replace_status = NORMAL;
 				clear_message();
+				drawBoard();
 			}
 			continue;
 		} 
@@ -450,14 +454,14 @@ void play(void) {
 					drawRecentBreaks();
 					wrefresh(mainwin);
 					game_stats.dropChar = getNextDropChar(game_stats.n_moves);
-					drawBoard();
-					drawScore();
 					if (game_stats.dropChar == DROP_BLANK) {
 						draw_message(BLANK_MESSAGE);
 					} else if (isTileReplacement()) {
 						game_stats.replace_status = SELECT;
 						draw_message(SELECT_MESSAGE);
 					}
+					drawBoard();
+					drawScore();
 					drawDropChar(DIR_STAY);
 				}
 				break;
