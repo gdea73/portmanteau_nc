@@ -11,7 +11,7 @@
 #include "letter.h"
 #include "words.h"
 #include "stats.h"
-#define BLANK '_'
+#define BOARD_BLANK '_'
 #define BOARD_WIDTH 7
 #define BOARD_HEIGHT 7
 #define INIT_BOARD_BLANK
@@ -33,6 +33,7 @@
 // delays (pseudo-animations)
 #define GRAV_DELAY_MS 20L
 #define CHAIN_DELAY_MS 700L
+#define REPLACE_DELAY_MS 500L
 
 WINDOW *createWindow(int height, int width, int start_y, int start_x);
 
@@ -61,6 +62,8 @@ void breakWords(int chainLevel);
 void breakBoardWord(struct boardWord *bw);
 
 char *readBoardWord(struct boardWord *bw);
+
+uint8_t isTileReplacement(void);
 
 void play(void);
 #endif

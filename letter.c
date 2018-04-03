@@ -39,7 +39,7 @@ void initCharTable(void) {
 		i++; k = 0;
 	}
 	while (j < CHAR_TABLE_SIZE) {
-		charTable[j] = '*';
+		charTable[j] = DROP_BLANK;
 		j++;
 	}
 	charTablePopulated = 1;
