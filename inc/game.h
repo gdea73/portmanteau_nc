@@ -35,6 +35,12 @@
 #define CHAIN_DELAY_MS 700L
 #define REPLACE_DELAY_MS 500L
 
+// line on which messages to the user should be printed
+#define MESSAGE_Y PAD_Y - 1
+#define BLANK_MESSAGE "Type any capital letter you wish to drop into the board."
+#define SELECT_MESSAGE "Select a tile to edit."
+#define REPLACE_MESSAGE "Type a new capital letter for the selected tile."
+
 WINDOW *createWindow(int height, int width, int start_y, int start_x);
 
 int initWindows(void);
@@ -44,6 +50,8 @@ void pushRecentBreak(char *word);
 void drawRecentBreaks(void);
 
 void drawScore(void);
+
+void draw_message(const char *message);
 
 void drawDropChar(int direction);
 

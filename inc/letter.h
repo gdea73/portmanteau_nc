@@ -7,7 +7,7 @@
 #define CHAR_TABLE_SIZE 100
 // longest-possible chain (for sake of bonus)
 #define MAX_CHAIN 7
-#define DROP_BLANK ' '
+#define DROP_BLANK '*'
 
 extern const int quantities[];
 extern const int pointValues[];

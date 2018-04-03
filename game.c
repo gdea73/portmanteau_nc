@@ -69,6 +69,20 @@ void drawRecentBreaks(void) {
 	}
 }
 
+void clear_message(void) {
+	int col = 1;
+	while (col < COLS - 1) {
+		// clear this line, stopping at the border (1 from EOL)
+		mvwaddch(mainwin, MESSAGE_Y, col, ' ');
+		col++;
+	}
+}
+
+void draw_message(const char *message) {
+	clear_message();
+	mvwprintw(mainwin, MESSAGE_Y, (COLS - strlen(message)) / 2, message);
+}
+
 void drawDropChar(int direction) {
 	// overwrite the previous drop character with a space
 	mvwaddch(boardwin, 2, 3 + 3 * selectedCol, ' ');
@@ -87,7 +101,8 @@ int drawBoard(void) {
 	int board_y = 3;
 	wmove(boardwin, board_y, board_x);
 	int hl_c = -1, hl_r = -1;
-	if (game_stats.replace_status == SELECT) {
+	if (game_stats.replace_status == SELECT
+		|| game_stats.replace_status == REPLACE) {
 		hl_c = game_stats.replace_tile_ID / 7;
 		hl_r = game_stats.replace_tile_ID % 7;
 	}
@@ -167,7 +182,9 @@ void dropGravity(int dropCol) {
 				// create space in the recently-vacated spots
 				board[dropCol][r2 - 1] = BOARD_BLANK;
 				r2++;
-				nanosleep(&gravity_delay, NULL);
+				if (r != -1 && r2 != BOARD_HEIGHT) {
+					nanosleep(&gravity_delay, NULL);
+				}
 				drawBoard();
 			}
 		}
@@ -196,9 +213,6 @@ void breakWords(int chainLevel) {
 	int n_wordsToCheck = 0;
 	uint8_t anyWordsBroken = 0;
 	int c = 0;
-	if (chainLevel > 1) {
-		nanosleep(&chain_delay, NULL); // delay to let user process words broken
-	}
 	if (chainLevel > game_stats.longest_chain) {
 		game_stats.longest_chain = chainLevel;
 	}
@@ -279,6 +293,7 @@ void breakWords(int chainLevel) {
 	if (anyWordsBroken) {
 		boardGravity();
 		drawBoard();
+		nanosleep(&chain_delay, NULL); // delay to let user process words broken
 		breakWords(chainLevel + 1);
 	}
 }
@@ -335,7 +350,7 @@ uint8_t isTileReplacement(void) {
 	if (tilesOnBoard > 42) {
 		return 1;
 	}
-	return (rand() / (RAND_MAX / 100) < 2 * tilesOnBoard);
+	return (int) floor(rand() / (RAND_MAX / 100) < 2 * tilesOnBoard);
 }
 
 void play(void) {
@@ -352,26 +367,30 @@ void play(void) {
 		getNextDropChar(0),	// drop letter
 		NORMAL				// tile replacement status
 	};
+	// TODO: why is this line required when getNextDropChar(0) is called above?
+	game_stats.dropChar = getNextDropChar(game_stats.n_moves);
 	if (initWindows() != 0) {
 		printf("%s", "There was an error attempting to create the game windows.");
 		return;
 	}
 	int c;
-	game_stats.dropChar = getNextDropChar(game_stats.n_moves);
 	drawDropChar(DIR_RIGHT);
 	drawScore();
 	drawRecentBreaks();
+	// special case: game begins with a blank
+	if (game_stats.dropChar == DROP_BLANK) {
+		draw_message(BLANK_MESSAGE);
+	}
 	while ((c = getch())) {
 		if (c == 'q') {
 			// TODO: quit confirmation "dialog"
 			break;
 		}
 		if (game_stats.dropChar == DROP_BLANK) {
-			if (isTileReplacement()) {
-				game_stats.replace_status = SELECT;
-			} else if (c > 64 && c < 91) {
+			if (c > 64 && c < 91) {
 				// assign an arbitrary (capital) letter to a BLANK
 				game_stats.dropChar = c;
+				clear_message();
 				drawDropChar(DIR_STAY);
 			}
 			continue;
@@ -400,6 +419,14 @@ void play(void) {
 						game_stats.replace_tile_ID++;
 					}
 					break;
+				case 10:
+					// commit the selection
+					game_stats.replace_status = REPLACE;
+					break;
+				default:
+					break;
+				drawBoard();
+				draw_message(REPLACE_MESSAGE);
 			}
 			continue;
 		} else if (game_stats.replace_status == REPLACE) {
@@ -407,6 +434,7 @@ void play(void) {
 				board[game_stats.replace_tile_ID / 7]
 				     [game_stats.replace_tile_ID % 7] = c;
 				game_stats.replace_status = NORMAL;
+				clear_message();
 			}
 			continue;
 		} 
@@ -420,9 +448,16 @@ void play(void) {
 			case 10: /* enter */
 				if (processDrop(selectedCol) == 0) {
 					drawRecentBreaks();
+					wrefresh(mainwin);
 					game_stats.dropChar = getNextDropChar(game_stats.n_moves);
 					drawBoard();
 					drawScore();
+					if (game_stats.dropChar == DROP_BLANK) {
+						draw_message(BLANK_MESSAGE);
+					} else if (isTileReplacement()) {
+						game_stats.replace_status = SELECT;
+						draw_message(SELECT_MESSAGE);
+					}
 					drawDropChar(DIR_STAY);
 				}
 				break;

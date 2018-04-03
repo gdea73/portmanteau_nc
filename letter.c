@@ -56,7 +56,7 @@ char getNextDropChar(int n_moves) {
 		for (i = 0; i < CHAR_TABLE_SIZE; i++) {
 			charSet[i] = charTable[i];
 		}
-		for (i = CHAR_TABLE_SIZE - 1; i > 0; i--) {
+		for (i = CHAR_TABLE_SIZE - 1; i >= 0; i--) {
 			// randomly swap characters to shuffle the drop tile set
 			j = (int) floor(rand() / (RAND_MAX / (i + 1)));
 			temp = charSet[i];
