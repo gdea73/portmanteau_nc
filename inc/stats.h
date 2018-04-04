@@ -11,6 +11,7 @@ struct stats {
 	int score;
 	int n_moves;
 	int level;
+	int next_level_threshold;
 	int longest_chain;
 	int longest_word;
 	int n_tiles_broken;

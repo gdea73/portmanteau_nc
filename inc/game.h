@@ -40,6 +40,12 @@
 #define BLANK_MESSAGE "Type any capital letter you wish to drop into the board."
 #define SELECT_MESSAGE "Select a tile to edit."
 #define REPLACE_MESSAGE "Type a new capital letter for the selected tile."
+#define GAME_OVER_MESSAGE "GAME OVER!"
+
+// longest possible chain (for the sake of score multipliers)
+#define MAX_CHAIN 7
+
+#define BASE_LEVEL_THRESHOLD 10
 
 WINDOW *createWindow(int height, int width, int start_y, int start_x);
 
@@ -62,6 +68,11 @@ void initBoard(void);
 void dropGravity(int dropCol);
 
 void boardGravity(void);
+
+// constants returned by processDrop
+#define DROP_SUCCESS 0
+#define DROP_COL_FULL 1
+#define DROP_GAME_OVER 2
 
 int processDrop(int col);
 

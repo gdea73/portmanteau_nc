@@ -5,6 +5,7 @@ char *recentBreaks[N_RECENT_BREAKS];
 int selectedCol = 3, boardwin_pos_x;
 WINDOW *mainwin, *boardwin;
 struct stats game_stats;
+uint8_t game_over;
 const struct timespec gravity_delay = {0, 1000000L * GRAV_DELAY_MS},
                       chain_delay = {0, 1000000L * CHAIN_DELAY_MS},
                       replace_delay = {0, 1000000L * REPLACE_DELAY_MS};
@@ -45,7 +46,12 @@ void drawScore(void) {
 		mvwaddch(boardwin, 1, c, ' ');
 		c++;
 	}
-	mvwprintw(boardwin, 1, 2, "Score: %d", game_stats.score);
+	int level_width = ceil(logf(game_stats.level));
+	mvwprintw(boardwin, 1, 3, "%d", game_stats.score);
+	mvwprintw(
+		boardwin, 1, BOARD_WIN_X - level_width - 9,
+		"Level %d", game_stats.level
+	);
 	wrefresh(boardwin);
 }
 
@@ -101,8 +107,7 @@ int drawBoard(void) {
 	int board_y = 3;
 	wmove(boardwin, board_y, board_x);
 	int hl_c = -1, hl_r = -1;
-	if (game_stats.replace_status == SELECT
-		|| game_stats.replace_status == REPLACE) {
+	if (game_stats.replace_status != NORMAL) {
 		hl_c = game_stats.replace_tile_ID / 7;
 		hl_r = game_stats.replace_tile_ID % 7;
 	}
@@ -201,12 +206,20 @@ void boardGravity(void) {
 int processDrop(int col) {
 	if (board[col][0] != BOARD_BLANK) {
 		// the drop is invalid; the selected column is full
-		return 1;
+		return DROP_COL_FULL;
 	}
 	board[col][0] = game_stats.dropChar;
 	dropGravity(col);
 	breakWords(1);
-	return 0;
+	for (int c = 0; c < BOARD_WIDTH; c++) {
+		for (int r = 0; r < BOARD_HEIGHT; r++) {
+			if (board[c][r] != BOARD_BLANK) {
+				return DROP_SUCCESS;
+			}
+		}
+	}
+	// game over condition
+	return DROP_GAME_OVER;
 }
 
 void breakWords(int chainLevel) {
@@ -283,6 +296,12 @@ void breakWords(int chainLevel) {
 			] * game_stats.level; // linear multiplier per-level
 			chainLevel++;
 			game_stats.n_words_broken += 1;
+			if (game_stats.n_words_broken > game_stats.next_level_threshold) {
+				game_stats.next_level_threshold +=
+					BASE_LEVEL_THRESHOLD *
+					ceil(game_stats.level / 2.0);
+				game_stats.level++;
+			}
 			game_stats.n_tiles_broken += strlen(s);
 		}
 		free(s);
@@ -358,17 +377,19 @@ void play(void) {
 	initBoard();
 	// initialize structs for game statistics and delays
 	game_stats = (struct stats) {
-		0,					// score
-		0,					// number of moves
-		1,					// level
-		0,					// longest chain
-		0,					// longest word broken
-		0,					// number of tiles broken
-		0,					// number of words broken
-		0,					// replacement tile ID
-		getNextDropChar(0),	// drop letter
-		NORMAL				// tile replacement status
+		0,						// score
+		0,						// number of moves
+		1,						// level
+		BASE_LEVEL_THRESHOLD,	// number of words broken to level up
+		0,						// longest chain
+		0,						// longest word broken
+		0,						// number of tiles broken
+		0,						// number of words broken
+		0,						// replacement tile ID
+		getNextDropChar(0),		// drop letter
+		NORMAL					// tile replacement status
 	};
+	game_over = 0;
 	if (initWindows() != 0) {
 		printf("%s", "There was an error attempting to create the game windows.");
 		return;
@@ -381,10 +402,13 @@ void play(void) {
 	if (game_stats.dropChar == DROP_BLANK) {
 		draw_message(BLANK_MESSAGE);
 	}
-	while ((c = getch())) {
+	uint8_t quit = 0, drop_result;
+	while ((c = getch()) && !quit) {
 		if (c == 'q') {
 			// TODO: quit confirmation "dialog"
-			break;
+			quit = 1;
+		} else if (game_over) {
+			continue;
 		}
 		if (game_stats.dropChar == DROP_BLANK) {
 			if (c > 64 && c < 91) {
@@ -395,6 +419,9 @@ void play(void) {
 			}
 			continue;
 		} else if (game_stats.replace_status == SELECT) {
+			// erase the drop character to avoid confusion
+			mvwaddch(boardwin, 2, 3 + 3 * selectedCol, ' ');
+			wrefresh(boardwin);
 			// arrow keys move selected tile
 			switch (c) {
 				case KEY_RIGHT:
@@ -438,7 +465,9 @@ void play(void) {
 				     [game_stats.replace_tile_ID % 7] = c;
 				game_stats.replace_status = NORMAL;
 				clear_message();
-				drawBoard();
+				breakWords(1);
+				drawScore();
+				drawRecentBreaks();
 			}
 			continue;
 		} 
@@ -450,7 +479,8 @@ void play(void) {
 				drawDropChar(DIR_RIGHT);
 				break;
 			case 10: /* enter */
-				if (processDrop(selectedCol) == 0) {
+				drop_result = processDrop(selectedCol);
+				if (drop_result == DROP_SUCCESS) {
 					drawRecentBreaks();
 					wrefresh(mainwin);
 					game_stats.dropChar = getNextDropChar(game_stats.n_moves);
@@ -463,6 +493,10 @@ void play(void) {
 					drawBoard();
 					drawScore();
 					drawDropChar(DIR_STAY);
+				} else if (drop_result == DROP_GAME_OVER) {
+					// TODO: game over dialog, save score, etc.
+					draw_message(GAME_OVER_MESSAGE);
+					game_over = 1;
 				}
 				break;
 			case KEY_RESIZE:
