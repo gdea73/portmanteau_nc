@@ -5,7 +5,8 @@ char *recentBreaks[N_RECENT_BREAKS];
 int selectedCol = 3, boardwin_pos_x;
 WINDOW *mainwin, *boardwin;
 struct stats game_stats;
-uint8_t game_over;
+struct game_state game_state;
+uint8_t game_over, is_headless;
 const struct timespec gravity_delay = {0, 1000000L * GRAV_DELAY_MS},
                       chain_delay = {0, 1000000L * CHAIN_DELAY_MS},
                       replace_delay = {0, 1000000L * REPLACE_DELAY_MS};
@@ -28,7 +29,6 @@ void pushRecentBreak(char *word) {
 	for (i = N_RECENT_BREAKS - 1; i > 0; i--) {
 		recentBreaks[i] = recentBreaks[i - 1];
 	}
-	// mvwprintw(mainwin, 1, 1, "adding recent break '%s'", word);
 	recentBreaks[0] = strdup(word);
 }
 
@@ -161,20 +161,12 @@ int initWindows(void) {
 }
 
 void initBoard(void) {
-	#ifdef INIT_BOARD_BLANK
 	// initialize the board with blanks
 	for (int c = 0; c < BOARD_HEIGHT; c++) {
 		for (int r = 0; r < BOARD_WIDTH; r++) {
 			board[c][r] = BOARD_BLANK; 
 		}
 	}
-	#else
-	for (int c = 0; c < BOARD_RAND_HEIGHT; c++) {
-		for (int r = 0; r < BOARD_WIDTH; r++) {
-			board[c][r] = getNextDropChar(game_stats.n_moves);
-		}
-	}
-	#endif
 }
 
 void dropGravity(int dropCol) {
@@ -188,10 +180,12 @@ void dropGravity(int dropCol) {
 				// create space in the recently-vacated spots
 				board[dropCol][r2 - 1] = BOARD_BLANK;
 				r2++;
-				if (r != -1 && r2 != BOARD_HEIGHT) {
-					nanosleep(&gravity_delay, NULL);
+				if (!is_headless) {
+					if (r != -1 && r2 != BOARD_HEIGHT) {
+						nanosleep(&gravity_delay, NULL);
+					}
+					drawBoard();
 				}
-				drawBoard();
 			}
 		}
 	}
@@ -213,7 +207,7 @@ int processDrop(int col) {
 	breakWords(1);
 	for (int c = 0; c < BOARD_WIDTH; c++) {
 		for (int r = 0; r < BOARD_HEIGHT; r++) {
-			if (board[c][r] != BOARD_BLANK) {
+			if (board[c][r] == BOARD_BLANK) {
 				return DROP_SUCCESS;
 			}
 		}
@@ -290,7 +284,7 @@ void breakWords(int chainLevel) {
 				pushRecentBreak(s_rev);
 			}
 			breakBoardWord(&wordsToCheck[i]);
-			anyWordsBroken = 1;
+			anyWordsBroken &= 1;
 			game_stats.score += wordScore(s) * chainMultipliers[
 				chainLevel < MAX_CHAIN ? chainLevel : MAX_CHAIN
 			] * game_stats.level; // linear multiplier per-level
@@ -312,190 +306,286 @@ void breakWords(int chainLevel) {
 	// if any words were broken, enact board gravity, and check for chains.
 	if (anyWordsBroken) {
 		boardGravity();
-		drawBoard();
-		nanosleep(&chain_delay, NULL); // delay to let user process words broken
-		breakWords(chainLevel + 1);
-	}
-}
-
-/* Assumes caller has validated that *bw is a valid English word. */
-void breakBoardWord(struct boardWord *bw) {
-	if (bw->startCol == bw->endCol) {
-		for (int r = bw->startRow; r <= bw->endRow; r++) {
-			board[bw->endCol][r] = BOARD_BLANK;
-		}
-	} else if (bw->startRow == bw->endRow) {
-		for (int c = bw->startCol; c <= bw->endCol; c++) {
-			board[c][bw->endRow] = BOARD_BLANK;
-		}
-	}
-}
-
-/* Attempts to extract a string, oriented vertically or horizontally,
-   from the board, using coordinates. Will return a NULL pointer only
-   if the coordinates are diagonal or if a BLANK is discovered within
-   their bounds. */
-char *readBoardWord(struct boardWord *bw) {
-	char *s = NULL;
-	int startCol = bw->startCol, startRow = bw->startRow;
-	int endCol = bw->endCol, endRow = bw->endRow;
-	if (startCol == endCol) {
-		// parse word vertically
-		s = calloc(endRow - startRow + 2, sizeof(char));
-		for (int r = startRow; r <= endRow; r++) {
-			s[r - startRow] = board[endCol][r];
-		}
-		s[endRow - startRow + 2] = '\0';
-	} else if (startRow == endRow) {
-		// parse word horizontally
-		s = calloc(endCol - startCol + 2, sizeof(char));
-		for (int c = startCol; c <= endCol; c++) {
-			s[c - startCol] = board[c][endRow];
-		}
-		s[endCol - startCol + 2] = '\0';
-	}
-	return s;
-}
-
-uint8_t isTileReplacement(void) {
-	int tilesOnBoard = 0;
-	for (int c = 0; c < BOARD_WIDTH; c++) {
-		for (int r = 0; r < BOARD_HEIGHT; r++) {
-			if (board[c][r] != BOARD_BLANK) tilesOnBoard++;
-		}
-	}
-	if (tilesOnBoard < 20) {
-		return 0;
-	}
-	if (tilesOnBoard > 42) {
-		return 1;
-	}
-	return (int) floor(rand() / (RAND_MAX / 100) < 2 * tilesOnBoard);
-}
-
-void play(void) {
-	initBoard();
-	// initialize structs for game statistics and delays
-	game_stats = (struct stats) {
-		0,						// score
-		0,						// number of moves
-		1,						// level
-		BASE_LEVEL_THRESHOLD,	// number of words broken to level up
-		0,						// longest chain
-		0,						// longest word broken
-		0,						// number of tiles broken
-		0,						// number of words broken
-		0,						// replacement tile ID
-		getNextDropChar(0),		// drop letter
-		NORMAL					// tile replacement status
-	};
-	game_over = 0;
-	if (initWindows() != 0) {
-		printf("%s", "There was an error attempting to create the game windows.");
-		return;
-	}
-	int c;
-	drawDropChar(DIR_RIGHT);
-	drawScore();
-	drawRecentBreaks();
-	// special case: game begins with a blank
-	if (game_stats.dropChar == DROP_BLANK) {
-		draw_message(BLANK_MESSAGE);
-	}
-	uint8_t quit = 0, drop_result;
-	while ((c = getch()) && !quit) {
-		if (c == 'q') {
-			// TODO: quit confirmation "dialog"
-			quit = 1;
-		} else if (game_over) {
-			continue;
-		}
-		if (game_stats.dropChar == DROP_BLANK) {
-			if (c > 64 && c < 91) {
-				// assign an arbitrary (capital) letter to a BLANK
-				game_stats.dropChar = c;
-				clear_message();
-				drawDropChar(DIR_STAY);
-			}
-			continue;
-		} else if (game_stats.replace_status == SELECT) {
-			// erase the drop character to avoid confusion
-			mvwaddch(boardwin, 2, 3 + 3 * selectedCol, ' ');
-			wrefresh(boardwin);
-			// arrow keys move selected tile
-			switch (c) {
-				case KEY_RIGHT:
-					// if not already at right border
-					if (game_stats.replace_tile_ID < 7 * 6) {
-						game_stats.replace_tile_ID += 7;
-					}
-					break;
-				case KEY_LEFT:
-					// if not already at left border
-					if (game_stats.replace_tile_ID > 6) {
-						game_stats.replace_tile_ID -= 7;
-					}
-					break;
-				case KEY_UP:
-					if (game_stats.replace_tile_ID % 7 != 0) {
-						game_stats.replace_tile_ID--;
-					}
-					break;
-				case KEY_DOWN:
-					if (game_stats.replace_tile_ID % 7 != 6) {
-						game_stats.replace_tile_ID++;
-					}
-					break;
-				case 10:
-					// commit the selection
-					if (board[game_stats.replace_tile_ID / 7]
-						     [game_stats.replace_tile_ID % 7] != BOARD_BLANK) {
-						game_stats.replace_status = REPLACE;
-						draw_message(REPLACE_MESSAGE);
-					}
-					break;
-				default:
-					break;
-			}
+		if (!is_headless) {
 			drawBoard();
-			continue;
-		} else if (game_stats.replace_status == REPLACE) {
-			if (c > 64 && c < 91) {
-				board[game_stats.replace_tile_ID / 7]
-				     [game_stats.replace_tile_ID % 7] = c;
-				game_stats.replace_status = NORMAL;
-				clear_message();
-				breakWords(1);
-				drawScore();
-				drawRecentBreaks();
+				if (chainLevel > 2) {
+					// delay to let user process words broken
+					nanosleep(&chain_delay, NULL);
+				}
 			}
-			continue;
-		} 
-		switch (c) {
-			case KEY_LEFT:
-				drawDropChar(DIR_LEFT);
-				break;
-			case KEY_RIGHT:
-				drawDropChar(DIR_RIGHT);
-				break;
-			case 10: /* enter */
-				drop_result = processDrop(selectedCol);
-				if (drop_result == DROP_SUCCESS) {
-					drawRecentBreaks();
-					wrefresh(mainwin);
-					game_stats.dropChar = getNextDropChar(game_stats.n_moves);
-					if (game_stats.dropChar == DROP_BLANK) {
-						draw_message(BLANK_MESSAGE);
-					} else if (isTileReplacement()) {
-						game_stats.replace_status = SELECT;
-						draw_message(SELECT_MESSAGE);
-					}
-					drawBoard();
-					drawScore();
+			breakWords(chainLevel);
+		}
+	}
+
+	/* Assumes caller has validated that *bw is a valid English word. */
+	void breakBoardWord(struct boardWord *bw) {
+		if (bw->startCol == bw->endCol) {
+			for (int r = bw->startRow; r <= bw->endRow; r++) {
+				board[bw->endCol][r] = BOARD_BLANK;
+			}
+		} else if (bw->startRow == bw->endRow) {
+			for (int c = bw->startCol; c <= bw->endCol; c++) {
+				board[c][bw->endRow] = BOARD_BLANK;
+			}
+		}
+	}
+
+	/* Attempts to extract a string, oriented vertically or horizontally,
+	   from the board, using coordinates. Will return a NULL pointer only
+	   if the coordinates are diagonal or if a BLANK is discovered within
+	   their bounds. */
+	char *readBoardWord(struct boardWord *bw) {
+		char *s = NULL;
+		int startCol = bw->startCol, startRow = bw->startRow;
+		int endCol = bw->endCol, endRow = bw->endRow;
+		if (startCol == endCol) {
+			// parse word vertically
+			s = calloc(endRow - startRow + 2, sizeof(char));
+			for (int r = startRow; r <= endRow; r++) {
+				s[r - startRow] = board[endCol][r];
+			}
+			s[endRow - startRow + 2] = '\0';
+		} else if (startRow == endRow) {
+			// parse word horizontally
+			s = calloc(endCol - startCol + 2, sizeof(char));
+			for (int c = startCol; c <= endCol; c++) {
+				s[c - startCol] = board[c][endRow];
+			}
+			s[endCol - startCol + 2] = '\0';
+		}
+		return s;
+	}
+
+	uint8_t isTileReplacement(void) {
+		int tilesOnBoard = 0;
+		for (int c = 0; c < BOARD_WIDTH; c++) {
+			for (int r = 0; r < BOARD_HEIGHT; r++) {
+				if (board[c][r] != BOARD_BLANK) tilesOnBoard++;
+			}
+		}
+		if (tilesOnBoard < 20) {
+			return 0;
+		}
+		if (tilesOnBoard > 42) {
+			return 1;
+		}
+		return (int) floor(rand() / (RAND_MAX / 100) < 2 * tilesOnBoard);
+	}
+
+	void init_game(void) {
+		initBoard();
+		// initialize structs for game statistics and delays
+		game_stats = (struct stats) {
+			0,						// score
+			0,						// number of moves
+			1,						// level
+			BASE_LEVEL_THRESHOLD,	// number of words broken to level up
+			0,						// longest chain
+			0,						// longest word broken
+			0,						// number of tiles broken
+			0,						// number of words broken
+			0,						// replacement tile ID
+			getNextDropChar(0),		// drop letter
+			NORMAL					// tile replacement status
+		};
+		game_over = 0;
+		if (initWindows() != 0) {
+			printf("%s", "There was an error attempting to create the game windows.");
+			return;
+		}
+		if (!is_headless) {
+			drawDropChar(DIR_RIGHT);
+			drawScore();
+			drawRecentBreaks();
+			// special case: game begins with a blank
+			if (game_stats.dropChar == DROP_BLANK) {
+				draw_message(BLANK_MESSAGE);
+			}
+		}
+	}
+
+	struct game_state *headless_init_game(void) {
+		is_headless = true;
+		init_game();
+		game_state = (struct game_state) {
+			&game_stats,
+			board[0],
+			0
+		};
+		return &game_state;
+	}
+
+	struct game_state *headless_drop_tile(int drop_col) {
+		if (game_stats.dropChar == DROP_BLANK) {
+			// sanity check: do we have a normal drop tile?
+			fprintf(stderr, "The blank tile must be assigned before it is "
+					"dropped into the board.");
+			return NULL;
+		}
+		if (game_stats.replace_status != NORMAL) {
+			// sanity check: are we in normal (as opposed to replacement) mode?
+			fprintf(stderr, "A tile cannot be dropped into the board during "
+					"a tile replacement operation.");
+			return NULL;
+		}
+		uint8_t drop_result = processDrop(selectedCol);
+		if (drop_result == DROP_SUCCESS) {
+			game_stats.dropChar = getNextDropChar(game_stats.n_moves);
+			if (game_stats.dropChar == DROP_BLANK && isTileReplacement()) {
+				game_stats.replace_status = SELECT;
+			}
+		} else if (drop_result == DROP_GAME_OVER) {
+			game_state.game_over = 1;
+		}
+		return &game_state;
+	}
+
+	struct game_state *headless_assign_blank(char blank_assignment) {
+		if (game_stats.dropChar != DROP_BLANK) {
+			fprintf(stderr, "The drop tile is not blank; it cannot be assigned.");
+			return NULL;
+		}
+		if (game_stats.replace_status != NORMAL) {
+			fprintf(stderr, "A blank cannot be assigned during a tile "
+					"replacement operation.");
+			return NULL;
+		}
+		if (blank_assignment < 65 || blank_assignment > 90) {
+			fprintf(stderr, "The blank assignment '%c' is invalid.",
+					blank_assignment);
+			return NULL;
+		}
+		game_stats.dropChar = blank_assignment;
+		return &game_state;
+	}
+
+	struct game_state *headless_replace_tile(int tile_ID, char new_letter) {
+		if (game_stats.replace_status != SELECT) {
+			fprintf(stderr, "The replace status must be SELECT (0). "
+					"Instead, it is %d.", game_stats.replace_status);
+			return NULL;
+		}
+		if (board[tile_ID / 7][tile_ID % 7] == BOARD_BLANK) {
+			fprintf(stderr, "One can only edit a non-blank tile.");
+			return NULL;
+		}
+		if (new_letter < 65 || new_letter > 90) {
+			fprintf(stderr, "The blank assignment '%c' is invalid.",
+					new_letter);
+			return NULL;
+		}
+		board[tile_ID / 7][tile_ID % 7] = new_letter;
+		game_stats.replace_status = NORMAL;
+		breakWords(1);
+		return &game_state;
+	}
+
+	void play(void) {
+		init_game();
+		
+		int c;
+		uint8_t quit = 0, drop_result;
+		while ((c = getch()) && !quit) {
+			if (c == 'q') {
+				// TODO: quit confirmation "dialog"
+				quit = 1;
+			} else if (game_over) {
+				continue;
+			}
+			if (game_stats.dropChar == DROP_BLANK) {
+				if (c > 64 && c < 91) {
+					// assign an arbitrary (capital) letter to a BLANK
+					game_stats.dropChar = c;
+					clear_message();
 					drawDropChar(DIR_STAY);
-				} else if (drop_result == DROP_GAME_OVER) {
-					// TODO: game over dialog, save score, etc.
-					draw_message(GAME_OVER_MESSAGE);
+				}
+				continue;
+			} else if (game_stats.replace_status == SELECT) {
+				// erase the drop character to avoid confusion
+				mvwaddch(boardwin, 2, 3 + 3 * selectedCol, ' ');
+				wrefresh(boardwin);
+				// arrow keys move selected tile
+				switch (c) {
+					case KEY_RIGHT:
+						// if not already at right border
+						if (game_stats.replace_tile_ID < 7 * 6) {
+							game_stats.replace_tile_ID += 7;
+						}
+						break;
+					case KEY_LEFT:
+						// if not already at left border
+						if (game_stats.replace_tile_ID > 6) {
+							game_stats.replace_tile_ID -= 7;
+						}
+						break;
+					case KEY_UP:
+						if (game_stats.replace_tile_ID % 7 != 0) {
+							game_stats.replace_tile_ID--;
+						}
+						break;
+					case KEY_DOWN:
+						if (game_stats.replace_tile_ID % 7 != 6) {
+							game_stats.replace_tile_ID++;
+						}
+						break;
+					case 10:
+						// commit the selection
+						if (board[game_stats.replace_tile_ID / 7]
+								 [game_stats.replace_tile_ID % 7] != BOARD_BLANK) {
+							game_stats.replace_status = REPLACE;
+							draw_message(REPLACE_MESSAGE);
+						}
+						break;
+					default:
+						break;
+				}
+				drawBoard();
+				continue;
+			} else if (game_stats.replace_status == REPLACE) {
+				if (c > 64 && c < 91) {
+					board[game_stats.replace_tile_ID / 7]
+						 [game_stats.replace_tile_ID % 7] = c;
+					game_stats.replace_status = NORMAL;
+					clear_message();
+					// ensure board refresh in case no words are broken
+					drawBoard();
+					drawDropChar(DIR_STAY);
+					breakWords(1);
+					drawScore();
+					drawRecentBreaks();
+				}
+				continue;
+			} 
+			switch (c) {
+				case KEY_LEFT:
+					drawDropChar(DIR_LEFT);
+					break;
+				case KEY_RIGHT:
+					drawDropChar(DIR_RIGHT);
+					break;
+				case 10: /* enter */
+					drop_result = processDrop(selectedCol);
+					if (drop_result == DROP_SUCCESS) {
+						drawRecentBreaks();
+						wrefresh(mainwin);
+						game_stats.dropChar = getNextDropChar(game_stats.n_moves);
+						if (game_stats.dropChar == DROP_BLANK) {
+							if (isTileReplacement()) {
+								game_stats.dropChar =
+									getNextDropChar(game_stats.n_moves);
+								game_stats.replace_status = SELECT;
+								draw_message(SELECT_MESSAGE);
+							} else {
+								draw_message(BLANK_MESSAGE);
+							}
+						}
+						drawBoard();
+						drawScore();
+						drawDropChar(DIR_STAY);
+					} else if (drop_result == DROP_GAME_OVER) {
+						// TODO: game over dialog, save score, etc.
+						drawBoard();
+						draw_message(GAME_OVER_MESSAGE);
 					game_over = 1;
 				}
 				break;
@@ -523,4 +613,5 @@ void play(void) {
 	delwin(mainwin);
 	freeDict(getDict());
 	refresh();
+	endwin();
 }

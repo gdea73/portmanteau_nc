@@ -11,10 +11,10 @@
 #include "letter.h"
 #include "words.h"
 #include "stats.h"
+#include "agents.h"
 #define BOARD_BLANK '_'
 #define BOARD_WIDTH 7
 #define BOARD_HEIGHT 7
-#define INIT_BOARD_BLANK
 #define BOARD_WIN_X 25
 #define BOARD_WIN_Y 17
 #define PAD_Y 2
@@ -28,7 +28,6 @@
 #define MIN_LINES BOARD_WIN_Y + 2 * PAD_Y
 #define MIN_COLS BOARD_WIN_X + 3 * PAD_Y + 7
 // 7 == max width of recent words
-// #define INIT_BOARD_RANDOM
 
 // delays (pseudo-animations)
 #define GRAV_DELAY_MS 20L
@@ -83,6 +82,14 @@ void breakBoardWord(struct boardWord *bw);
 char *readBoardWord(struct boardWord *bw);
 
 uint8_t isTileReplacement(void);
+
+struct game_state *headless_init_game(void);
+
+struct game_state *headless_drop_tile(int drop_col);
+
+struct game_state *headless_assign_blank(char blank_assignment);
+
+struct game_state *headless_replace_tile(int tile_ID, char new_letter);
 
 void play(void);
 #endif
