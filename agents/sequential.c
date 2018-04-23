@@ -1,14 +1,15 @@
 #include "agents.h"
 
-struct game_state *random_play_single_game(void) {
+struct game_state *sequential_play_single_game(void) {
 	initCharTable();
 	struct game_state *current_game = malloc(sizeof(struct game_state));
 	current_game = headless_init_game();
+	int col = 0;
 	while (!current_game->game_over) {
 		if (current_game->stats->replace_status == NORMAL
 		    && current_game->stats->dropChar != DROP_BLANK) {
 			// normal operation: drop tile into a random column
-			current_game = headless_drop_tile(rand_int(6));
+			current_game = headless_drop_tile(col++);
 		} else {
 			// either a blank or a replacement: come up with a random letter
 			char random_letter = 65 + rand_int(25);
@@ -30,6 +31,7 @@ struct game_state *random_play_single_game(void) {
 			fprintf(stderr, "most recent move failed");
 			break;
 		}
+		col %= BOARD_WIDTH;
 	}
 	return current_game;
 }
