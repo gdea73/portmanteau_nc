@@ -4,8 +4,8 @@ char board[BOARD_WIDTH][BOARD_HEIGHT];
 char *recentBreaks[N_RECENT_BREAKS];
 int selectedCol = 3, boardwin_pos_x;
 WINDOW *mainwin, *boardwin;
-struct stats game_stats;
-struct game_state game_state;
+static struct stats game_stats;
+static struct game_state game_state;
 uint8_t game_over, is_headless;
 const struct timespec gravity_delay = {0, 1000000L * GRAV_DELAY_MS},
                       chain_delay = {0, 1000000L * CHAIN_DELAY_MS},
@@ -389,7 +389,7 @@ void breakWords(int chainLevel) {
 			NORMAL					// tile replacement status
 		};
 		game_over = 0;
-		if (initWindows() != 0) {
+		if (!is_headless && initWindows() != 0) {
 			printf("%s", "There was an error attempting to create the game windows.");
 			return;
 		}
@@ -428,10 +428,11 @@ void breakWords(int chainLevel) {
 					"a tile replacement operation.");
 			return NULL;
 		}
-		uint8_t drop_result = processDrop(selectedCol);
+		uint8_t drop_result = processDrop(drop_col);
 		if (drop_result == DROP_SUCCESS) {
-			game_stats.dropChar = getNextDropChar(game_stats.n_moves);
+			game_stats.dropChar = getNextDropChar(game_stats.n_moves++);
 			if (game_stats.dropChar == DROP_BLANK && isTileReplacement()) {
+				game_stats.dropChar = getNextDropChar(game_stats.n_moves++);
 				game_stats.replace_status = SELECT;
 			}
 		} else if (drop_result == DROP_GAME_OVER) {
@@ -568,11 +569,12 @@ void breakWords(int chainLevel) {
 					if (drop_result == DROP_SUCCESS) {
 						drawRecentBreaks();
 						wrefresh(mainwin);
-						game_stats.dropChar = getNextDropChar(game_stats.n_moves);
+						game_stats.dropChar =
+							getNextDropChar(game_stats.n_moves++);
 						if (game_stats.dropChar == DROP_BLANK) {
 							if (isTileReplacement()) {
 								game_stats.dropChar =
-									getNextDropChar(game_stats.n_moves);
+									getNextDropChar(game_stats.n_moves++);
 								game_stats.replace_status = SELECT;
 								draw_message(SELECT_MESSAGE);
 							} else {

@@ -12,12 +12,11 @@ ITEM *selectedItem;
 char *options[] = {
 					"Play",
 					"High Scores",
-					"Load Words (test)",
+					"AI: Random Agent",
 					"Exit"
-				};
+};
 
 void initMenu(void) {
-
 	optionsCount = ARRAY_SIZE(options);
 	items = (ITEM **) calloc(optionsCount + 1, sizeof(ITEM *));
 
@@ -27,12 +26,12 @@ void initMenu(void) {
 	items[optionsCount] = (ITEM *) NULL;
 
 	menu = new_menu((ITEM **) items);
-	mvprintw(LINES - 2, 0, "Press F10 to exit.");
+	mvprintw(LINES - 2, 0, "Press 'Q' to quit.");
 	post_menu(menu);
 	refresh();
 }
 
-const char * displayMenu() {
+const char *displayMenu() {
 	while ((c = getch()) != 'q') {
 		switch (c) {
 			case KEY_DOWN:

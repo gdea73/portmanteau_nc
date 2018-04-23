@@ -3,6 +3,7 @@
 #include "scores.h"
 #include "game.h"
 #include "words.h"
+#include "agents.h"
 
 void initTUI(void) {
 	initscr();
@@ -37,12 +38,9 @@ int main(int argc, char **argv) {
 			initMenu();
 		} else if (strcmp(selection, "High Scores") == 0) {
 			scores();
-		} else if (strcmp(selection, "Load Words (test)") == 0) {
-			struct dictionary *d = loadDict("./words_scrabble.txt");
-			mvprintw(6, 0, "%d words loaded", d->length);
-			mvprintw(7, 0, "first word: \"%s\"", d->words[0]);	
-			mvprintw(8, 0, "is \"ABLUTION\" a word? %d", isValidWord(d, "ABLUTION"));
-			freeDict(d);
+		} else if (strcmp(selection, "AI: Random Agent") == 0) {
+			struct game_state *result = random_play_single_game();
+			mvprintw(LINES - 3, 0, "AI score: %d", result->stats->score);
 		} 
 	freeMenu();
 	refresh();
