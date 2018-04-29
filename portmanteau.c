@@ -33,22 +33,23 @@ int main(int argc, char **argv) {
 	srand((unsigned int) time(NULL));
 	char c;
 	const char *selection = NULL;
-	selection = displayMenu();
-	if (strcmp(selection, "Play") == 0) {
-		play();
-		initMenu();
-	} else if (strcmp(selection, "High Scores") == 0) {
-		scores();
-	} else if (strcmp(selection, "AI: Random Agent") == 0) {
-		struct game_state *result = random_play_single_game();
-		mvprintw(LINES - 3, 0, "AI score: %d", result->stats->score);
-		refresh();
-	} else if (strcmp(selection, "AI: Sequential Agent") == 0) {
-		struct game_state *result = sequential_play_single_game();
-		mvprintw(LINES - 3, 0, "AI score: %d", result->stats->score);
-		refresh();
-	} 
-	while ((c = getch()) != 'q');
+	while ((c = getch()) != 'q') {
+		selection = displayMenu();
+		if (strcmp(selection, "Play") == 0) {
+			play();
+			initMenu();
+		} else if (strcmp(selection, "High Scores") == 0) {
+			scores();
+		} else if (strcmp(selection, "AI: Random Agent") == 0) {
+			struct game_state *result = random_play_single_game();
+			mvprintw(LINES - 3, 0, "AI score: %d              ", result->stats->score);
+			refresh();
+		} else if (strcmp(selection, "AI: Sequential Agent") == 0) {
+			struct game_state *result = sequential_play_single_game();
+			mvprintw(LINES - 3, 0, "AI score: %d              ", result->stats->score);
+			refresh();
+		} 
+	}
 	freeMenu();
 	refresh();
 	endwin();
