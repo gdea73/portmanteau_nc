@@ -13,5 +13,6 @@ struct game_state {
 
 struct game_state *random_play_single_game(void);
 struct game_state *sequential_play_single_game(void);
+struct game_state *test_play_single_game(void);
 
 #endif
