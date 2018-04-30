@@ -33,10 +33,17 @@ int main(int argc, char **argv) {
 	srand((unsigned int) time(NULL));
 	char c;
 	const char *selection = NULL;
+	struct game last_game;
 	while ((c = getch()) != 'q') {
 		selection = displayMenu();
 		if (strcmp(selection, "Play") == 0) {
 			play();
+		} else if (strcmp(selection, "AI: Random Agent") == 0) {
+			last_game = *random_play_single_game();
+			mvprintw(LINES - 3, 0, "AI score: %d            ", last_game.score);
+		} else if (strcmp(selection, "AI: Greedy Agent") == 0) {
+			last_game = *greedy_play_single_game();
+			mvprintw(LINES - 3, 0, "AI score: %d            ", last_game.score);
 		}
 	}
 	freeMenu();

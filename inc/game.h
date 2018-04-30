@@ -89,11 +89,11 @@ struct game *init_game(uint8_t is_headless);
 
 void free_game(struct game *game);
 
-int headless_drop_tile(struct game *game, int drop_col);
+int headless_drop_tile(int drop_col);
 
-int headless_assign_blank(struct game *game, char blank_assignment);
+int headless_assign_blank(char blank_assignment);
 
-int headless_replace_tile(struct game *game, int tile_ID, char new_letter);
+int headless_replace_tile(int tile_ID, char new_letter);
 
 void play(void);
 #endif

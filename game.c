@@ -32,7 +32,7 @@ void push_recent_break(char *word) {
 		game->longest_word = strlen(word);
 	}
 	for (i = N_RECENT_BREAKS - 1; i > 0; i--) {
-		strncpy(game->recent_breaks[i - 1], game->recent_breaks[i], 7);
+		strncpy(game->recent_breaks[i], game->recent_breaks[i - 1], 7);
 	}
 	strncpy(game->recent_breaks[0], word, 7);
 }
@@ -413,7 +413,7 @@ void free_game(struct game *game) {
 	free(game);
 }
 
-int headless_drop_tile(struct game *game, int drop_col) {
+int headless_drop_tile(int drop_col) {
 	if (game->drop_letter == DROP_BLANK) {
 		// sanity check: do we have a normal drop tile?
 		fprintf(stderr, "The blank tile must be assigned before it is "
@@ -440,7 +440,7 @@ int headless_drop_tile(struct game *game, int drop_col) {
 	return drop_result;
 }
 
-int headless_assign_blank(struct game *game, char blank_assignment) {
+int headless_assign_blank(char blank_assignment) {
 	if (game->drop_letter != DROP_BLANK) {
 		fprintf(stderr, "The drop tile is not blank; it cannot be assigned.");
 		return -1;
@@ -459,7 +459,7 @@ int headless_assign_blank(struct game *game, char blank_assignment) {
 	return 0;
 }
 
-int headless_replace_tile(struct game *game, int tile_ID, char new_letter) {
+int headless_replace_tile(int tile_ID, char new_letter) {
 	if (game->replace_status != SELECT) {
 		fprintf(stderr, "The replace status must be SELECT (0). "
 				"Instead, it is %d.", game->replace_status);

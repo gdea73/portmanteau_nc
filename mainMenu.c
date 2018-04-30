@@ -14,7 +14,7 @@ char *options[] = {
 					"High Scores",
 					"AI: Random Agent",
 					"AI: Sequential Agent",
-					"AI: Test Agent",
+					"AI: Greedy Agent",
 					"Exit"
 };
 
