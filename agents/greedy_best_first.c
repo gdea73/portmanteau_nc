@@ -2,7 +2,8 @@
 
 int get_greedy_best_drop_col(struct game *g) {
 	static struct game sim;
-	int best_col, best_score = 0, i;
+	int best_col, i, best_score;
+	best_col = rand_int(7);
 	set_game(&sim);
 	for (i = 0; i < BOARD_WIDTH; i++) {
 		memcpy(&sim, g, sizeof(struct game));
@@ -12,6 +13,7 @@ int get_greedy_best_drop_col(struct game *g) {
 			best_score = sim.score;
 		}
 	}
+	set_game(g);
 	return best_col;
 }
 
