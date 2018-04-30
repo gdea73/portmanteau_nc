@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "game_struct.h"
 
 #define CHAR_TABLE_SIZE 100
 #define DROP_BLANK '*'
@@ -15,6 +16,8 @@ void initCharTable(void);
 
 int pointValue(char c);
 
-char getNextDropChar(int n_moves);
+void generate_tile_set(char *tile_set);
+
+char get_next_drop_letter(struct game *game);
 
 #endif

@@ -3,8 +3,6 @@
 int charTablePopulated = 0;
 // initialized once, to keep track of letter distribution
 char charTable[CHAR_TABLE_SIZE];
-// to be shuffled, and sampled from
-char charSet[CHAR_TABLE_SIZE];
 
 const int pointValues[] = {
  // A, B, C, D, E, F, G, H, I, J, K, L, M,
@@ -45,24 +43,28 @@ void initCharTable(void) {
 	charTablePopulated = 1;
 }
 
-char getNextDropChar(int n_moves) {
+void generate_tile_set(char *tile_set) {
+	// generate a new tile set
+	int i, j;
+	char temp;
+	for (i = 0; i < CHAR_TABLE_SIZE; i++) {
+		tile_set[i] = charTable[i];
+	}
+	for (i = CHAR_TABLE_SIZE - 1; i >= 0; i--) {
+		// randomly swap characters to shuffle the drop tile set
+		j = (int) floor(rand() / (RAND_MAX / (i + 1)));
+		temp = tile_set[i];
+		tile_set[i] = tile_set[j];
+		tile_set[j] = temp;
+	}
+}
+
+char get_next_drop_letter(struct game *game) {
 	if (!charTablePopulated) {
 		initCharTable();
 	}
-	if (n_moves % CHAR_TABLE_SIZE == 0) {
-		// generate a new tile set
-		int i, j;
-		char temp;
-		for (i = 0; i < CHAR_TABLE_SIZE; i++) {
-			charSet[i] = charTable[i];
-		}
-		for (i = CHAR_TABLE_SIZE - 1; i >= 0; i--) {
-			// randomly swap characters to shuffle the drop tile set
-			j = (int) floor(rand() / (RAND_MAX / (i + 1)));
-			temp = charSet[i];
-			charSet[i] = charSet[j];
-			charSet[j] = temp;
-		}
+	if (game->n_moves % CHAR_TABLE_SIZE == 0) {
+		generate_tile_set(game->tile_set);
 	}
-	return charSet[n_moves % CHAR_TABLE_SIZE];
+	return game->tile_set[game->n_moves % CHAR_TABLE_SIZE];
 }

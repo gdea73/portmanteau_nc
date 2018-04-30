@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include "letter.h"
 #include "words.h"
-#include "stats.h"
 #include "agents.h"
+#include "game_struct.h"
 #define BOARD_BLANK '_'
 #define BOARD_WIDTH 7
 #define BOARD_HEIGHT 7
@@ -46,50 +46,54 @@
 
 #define BASE_LEVEL_THRESHOLD 10
 
-WINDOW *createWindow(int height, int width, int start_y, int start_x);
+struct game *get_game(void);
 
-int initWindows(void);
+void set_game(struct game *g);
 
-void pushRecentBreak(char *word);
+WINDOW *create_window(int height, int width, int start_y, int start_x);
 
-void drawRecentBreaks(void);
+int init_windows(void);
 
-void drawScore(void);
+void push_recent_break(char *word);
+
+void draw_recent_breaks(void);
+
+void draw_score(void);
 
 void draw_message(const char *message);
 
-void drawDropChar(int direction);
+void draw_drop_letter(int direction);
 
-int drawBoard(void);
-
-void initBoard(void);
+int draw_board(void);
 
 void dropGravity(int dropCol);
 
 void boardGravity(void);
 
-// constants returned by processDrop
+// constants returned by process_drop
 #define DROP_SUCCESS 0
 #define DROP_COL_FULL 1
 #define DROP_GAME_OVER 2
 
-int processDrop(int col);
+int process_drop(int col);
 
-void breakWords(int chainLevel);
+void break_words(int chainLevel);
 
-void breakBoardWord(struct boardWord *bw);
+void break_board_word(struct boardWord *bw);
 
 char *readBoardWord(struct boardWord *bw);
 
 uint8_t isTileReplacement(void);
 
-struct game_state *headless_init_game(void);
+struct game *init_game(uint8_t is_headless);
 
-struct game_state *headless_drop_tile(int drop_col);
+void free_game(struct game *game);
 
-struct game_state *headless_assign_blank(char blank_assignment);
+int headless_drop_tile(struct game *game, int drop_col);
 
-struct game_state *headless_replace_tile(int tile_ID, char new_letter);
+int headless_assign_blank(struct game *game, char blank_assignment);
+
+int headless_replace_tile(struct game *game, int tile_ID, char new_letter);
 
 void play(void);
 #endif
