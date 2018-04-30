@@ -601,8 +601,8 @@ void play(void) {
 					// TODO: game over dialog, save score, etc.
 					draw_board();
 					draw_message(GAME_OVER_MESSAGE);
-				game->game_over = 1;
-			}
+					game->game_over = 1;
+				}
 			break;
 			case KEY_RESIZE:
 				clear();
