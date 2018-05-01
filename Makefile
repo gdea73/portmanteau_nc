@@ -1,9 +1,16 @@
-CFLAGS=-Wall -g -std=c11 -I./inc
+CFLAGS=-Wall -g -std=c11 -I./inc -I./ai
 LDFLAGS=-lncurses -lmenu -lm
 
-all: portmanteau
+PORTMANTEAU_FILES=utils.c letter.c mainMenu.c game.c scores.c words.c
+AI_FILES=ai/ai.c
 
-portmanteau: utils.c letter.c mainMenu.c game.c scores.c portmanteau.c words.c agents/*.c
+all: portmanteau ai
+
+portmanteau: ${PORTMANTEAU_FILES}
+	gcc ${CFLAGS} ${LDFLAGS} -o portmanteau ${PORTMANTEAU_FILES} portmanteau.c
+
+ai: ${AI_FILES} ${PORTMANTEAU_FILES}
+	gcc ${CFLAGS} ${LDFLAGS} -o portmanteau_ai ${PORTMANTEAU_FILES} ${AI_FILES}
 
 clean:
-	rm -f portmanteau
+	rm -f portmanteau portmanteau_ai

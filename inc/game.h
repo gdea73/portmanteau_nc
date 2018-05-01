@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include "letter.h"
 #include "words.h"
-#include "agents.h"
 #include "game_struct.h"
 #define BOARD_BLANK '_'
 #define BOARD_WIDTH 7

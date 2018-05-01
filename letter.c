@@ -1,4 +1,5 @@
 #include "letter.h"
+#include "utils.h"
 
 int charTablePopulated = 0;
 // initialized once, to keep track of letter distribution
@@ -52,7 +53,7 @@ void generate_tile_set(char *tile_set) {
 	}
 	for (i = CHAR_TABLE_SIZE - 1; i >= 0; i--) {
 		// randomly swap characters to shuffle the drop tile set
-		j = (int) floor(rand() / (RAND_MAX / (i + 1)));
+		j = (int) floor(rand_int(i));
 		temp = tile_set[i];
 		tile_set[i] = tile_set[j];
 		tile_set[j] = temp;
