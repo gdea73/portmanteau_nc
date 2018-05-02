@@ -14,6 +14,18 @@ static const struct agent agents[] = {{
 		get_greedy_normal_move, get_greedy_blank_move,
 		get_random_replace_move, "greedy2"
 	}, {
+		get_column_normal_move, get_random_blank_move,
+		get_random_replace_move, "column"
+	}, {
+		get_column_normal_move, get_greedy_blank_move,
+		get_random_replace_move, "column_greedyblank"
+	}, {
+		get_sequential_normal_move, get_random_blank_move,
+		get_random_replace_move, "sequential"
+	}, {
+		get_sequential_normal_move, get_greedy_blank_move,
+		get_random_replace_move, "sequential_greedyblank"
+	}, {
 		get_greedy_normal_move, get_greedy_blank_move,
 		get_greedy_replace_move, "greedy3"
 	}
