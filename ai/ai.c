@@ -5,10 +5,16 @@ static const struct agent agents[] = {{
 		get_random_normal_move, get_random_blank_move,
 		get_random_replace_move, "random"
 	}, {
-		// FIXME: copy old monolithic greedy strategy into this format
-		get_random_normal_move, get_random_blank_move,
+		get_random_normal_move, get_greedy_blank_move,
+		get_random_replace_move, "randgreedyrand"
+	}, {
+		get_greedy_normal_move, get_random_blank_move,
 		get_random_replace_move, "greedy"
+	}, {
+		get_greedy_normal_move, get_greedy_blank_move,
+		get_random_replace_move, "greedy2"
 	}
+
 };
 
 void play_AI_game(struct agent agent, struct game *game) {
@@ -43,8 +49,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	struct agent agent = { 0 };
-	int i;
-	int n_games = atoi(argv[1]);
+	int i, total_score, n_games = atoi(argv[1]);
 	struct game **ai_games = malloc(n_games * sizeof(struct game *));
 	for (i = 0; i < ARRAY_SIZE(agents); i++) {
 		if (strncmp(argv[2], agents[i].strategy_name,
@@ -62,9 +67,11 @@ int main(int argc, char **argv) {
 		ai_games[i] = init_game(1); // all AI games are headless
 		play_AI_game(agent, ai_games[i]);
 		// printf("AI game #%d ended with score: %d\n", i, ai_games[i]->score);
-		printf("%d,", ai_games[i]->score);
+		printf("%d\n", ai_games[i]->score);
 	}
 	for (i = 0; i < n_games; i++) {
+		total_score += ai_games[i]->score;
 		free_game(ai_games[i]);
 	}
+	printf("Average score: %f\n", (float) total_score / n_games);
 }
