@@ -9,7 +9,7 @@ all: portmanteau ai
 portmanteau: $(PORTMANTEAU_FILES)
 	gcc $(CFLAGS) $(LDFLAGS) -o portmanteau $(PORTMANTEAU_FILES) portmanteau.c
 
-ai: portmanteau $(AI_FILES) $(PORTMANTEAU_FILES)
+ai: $(AI_FILES) $(PORTMANTEAU_FILES)
 	gcc $(CFLAGS) $(LDFLAGS) -o portmanteau_ai $(PORTMANTEAU_FILES) $(AI_FILES)
 
 clean:

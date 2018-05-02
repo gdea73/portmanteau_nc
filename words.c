@@ -63,6 +63,9 @@ void freeDict(struct dictionary *dict) {
 
 uint8_t isValidWord(struct dictionary *dict, char *sz) {
 	// printf("checking whether \"%s\" is a valid word\n", sz);
+	if (strnlen(sz, 7) < MIN_WORD_LENGTH) {
+		return 0;
+	}
 	return binSearch(dict->words, sz, 0, dict->length - 1);
 }
 

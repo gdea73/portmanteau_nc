@@ -8,6 +8,7 @@
 #include <stdint.h>
 
 #define WORDSBS 127
+#define MIN_WORD_LENGTH 3
 
 struct dictionary {
 	char **words;

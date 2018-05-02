@@ -5,29 +5,29 @@ static const struct agent agents[] = {{
 		get_random_normal_move, get_random_blank_move,
 		get_random_replace_move, "random"
 	}, {
-		get_random_normal_move, get_greedy_blank_move,
+		get_random_normal_move, get_greedy_blank_move_h1,
 		get_random_replace_move, "randgreedyrand"
 	}, {
-		get_greedy_normal_move, get_random_blank_move,
+		get_greedy_normal_move_h1, get_random_blank_move,
 		get_random_replace_move, "greedy"
 	}, {
-		get_greedy_normal_move, get_greedy_blank_move,
+		get_greedy_normal_move_h1, get_greedy_blank_move_h1,
 		get_random_replace_move, "greedy2"
 	}, {
 		get_column_normal_move, get_random_blank_move,
 		get_random_replace_move, "column"
 	}, {
-		get_column_normal_move, get_greedy_blank_move,
+		get_column_normal_move, get_greedy_blank_move_h1,
 		get_random_replace_move, "column_greedyblank"
 	}, {
 		get_sequential_normal_move, get_random_blank_move,
 		get_random_replace_move, "sequential"
 	}, {
-		get_sequential_normal_move, get_greedy_blank_move,
+		get_sequential_normal_move, get_greedy_blank_move_h1,
 		get_random_replace_move, "sequential_greedyblank"
 	}, {
-		get_greedy_normal_move, get_greedy_blank_move,
-		get_greedy_replace_move, "greedy3"
+		get_greedy_normal_move_h1, get_greedy_blank_move_h1,
+		get_greedy_replace_move_h1, "greedy3"
 	}
 };
 
