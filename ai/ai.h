@@ -23,6 +23,10 @@ struct agent {
 	const char *strategy_name;
 };
 
+int get_random_normal_move(struct game *game);
+struct blank_move get_random_blank_move(struct game *game);
+struct replace_move get_random_replace_move(struct game *game);
+
 void play_AI_game(struct agent agent, struct game *game);
 
 int main(int argc, char **argv);

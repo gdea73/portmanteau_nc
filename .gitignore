@@ -1,7 +1,8 @@
 *.o
 # don't save breakpoints for GDB
 bp 
-# don't commit the compiled binary
+# don't commit the compiled binaries
 ./portmanteau
+./portmanteau_ai
 # ignore CTAGS
 ./tags 

@@ -1,27 +1,6 @@
 #include "ai.h"
 #include "game.h"
 
-int get_random_normal_move(struct game *game) {
-	// degenerate case: ignores game state entirely and picks a random column
-	return rand_int(7);
-}
-
-struct blank_move get_random_blank_move(struct game *game) {
-	struct blank_move move;
-	move.letter = 65 + rand_int(25);
-	move.drop_col = rand_int(7);
-	return move;
-}
-
-struct replace_move get_random_replace_move(struct game *game) {
-	struct replace_move move;
-	move.letter = 65 + rand_int(25);
-	do {
-		move.tile_ID = rand_int(7 * 7);
-	} while (game->board[move.tile_ID / 7][move.tile_ID % 7] == BOARD_BLANK);
-	return move;
-}
-
 static const struct agent agents[] = {{
 		get_random_normal_move, get_random_blank_move,
 		get_random_replace_move, "random"
@@ -58,6 +37,7 @@ void play_AI_game(struct agent agent, struct game *game) {
 }
 
 int main(int argc, char **argv) {
+	srand(time(NULL));
 	if (argc != 3) {
 		fprintf(stderr, "usage: %s n_games strategy_name\n", argv[0]);
 		return -1;
@@ -81,7 +61,8 @@ int main(int argc, char **argv) {
 	for (i = 0; i < n_games; i++) {
 		ai_games[i] = init_game(1); // all AI games are headless
 		play_AI_game(agent, ai_games[i]);
-		printf("AI game #%d ended with score: %d\n", i, ai_games[i]->score);
+		// printf("AI game #%d ended with score: %d\n", i, ai_games[i]->score);
+		printf("%d,", ai_games[i]->score);
 	}
 	for (i = 0; i < n_games; i++) {
 		free_game(ai_games[i]);
