@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	struct agent agent = { 0 };
-	int i, total_score, best_score = 0, n_games = atoi(argv[1]);
+	int i, total_score = 0, best_score = 0, n_games = atoi(argv[1]);
 	struct game **ai_games = malloc(n_games * sizeof(struct game *));
 	for (i = 0; i < ARRAY_SIZE(agents); i++) {
 		if (strncmp(argv[2], agents[i].strategy_name,
