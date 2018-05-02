@@ -8,6 +8,9 @@ static const struct agent agents[] = {{
 		// FIXME: copy old monolithic greedy strategy into this format
 		get_random_normal_move, get_random_blank_move,
 		get_random_replace_move, "greedy"
+	}, {
+		get_column_normal_move, get_column_blank_move,
+		get_column_replace_move, "column"
 	}
 };
 

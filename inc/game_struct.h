@@ -2,6 +2,7 @@
 #define GAME_STRUCT_H
 
 #include "portmanteau.h"
+#include <stdint.h>
 
 enum replace_status {
 	NORMAL,		// normal gameplay; no replacement operation in progress
