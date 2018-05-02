@@ -30,6 +30,7 @@ struct replace_move get_random_replace_move(struct game *game);
 // greedy strategies
 int get_greedy_normal_move(struct game *game);
 struct blank_move get_greedy_blank_move(struct game *game);
+struct replace_move get_greedy_replace_move(struct game *game);
 
 int get_column_normal_move(struct game *game);
 
