@@ -5,6 +5,44 @@
 #define MAX_PROSPECTIVE_WORDS 100
 #define MIRRORED_DICT_FILE "../words_mirrored.txt"
 
+// constants regarding heuristic function h2()
+#define COL_SCORE_MIN -100
+#define COL_SCORE_MAX 100
+#define WORD_SCORE_MAX 7424 // "MUZIJKS" is a top-tier power play
+// TODO: determine a good value for this
+#define BASE_SCALE 0.1 
+
+// these were precalculated by counting occurrences in words_mirrored.txt;
+// e.g., :%s/^A.*$//gn counts all words beginning or ending with 'A'.
+static int letter_freqs[] = {
+	4685,	// A  
+	3929, 	// B
+	5189, 	// C
+	8217, 	// D
+	7522, 	// E
+	2728, 	// F
+	4777, 	// G
+	3166, 	// H
+	1582, 	// I
+	789, 	// J
+	1803, 	// K
+	4083, 	// L
+	3688, 	// M
+	3625, 	// N
+	2129, 	// O
+	4448, 	// P
+	296, 	// Q
+	7493, 	// R
+	22059,	// S
+	6250, 	// T
+	1259, 	// U
+	951, 	// V
+	1994, 	// W
+	309, 	// X
+	4225, 	// Y
+	406, 	// Z
+};
+
 static int h1(struct game *g);
 
 static void get_prospective_words(char *substring, char **output);
@@ -15,6 +53,7 @@ static size_t bin_substring_search(
 static uint8_t substring_compare(char *word, char *substring);
 
 static int h2(struct game *g);
+static int h2_col_score(struct game *g, int col);
 
 static int get_greedy_normal_move(
 	struct game *g, int (*heuristic)(struct game *g)
@@ -104,23 +143,45 @@ static void get_prospective_words(char *substring, char **output) {
 
 // h2(game): "column scoring" method
 static int h2(struct game *g) {
-	static char *prospective_words[MAX_PROSPECTIVE_WORDS];
-	int score = 0, c, height;
+	int score = 0, c;
 	for (c = 0; c < 7; c++) {
-		height = 0;
-		while (g->board[c][7 - 1 - height] != BOARD_BLANK) {
-			height++;
-		}
-		if (height > 1 && height < 7) {
-			char *board_word = readBoardWord(
-				&((struct boardWord) { c, 7 - 1, c, 7 - 1 - height })
-			);
-			// for each prospective word:
-			// score += wordScore(word) / (len(word) - height)
-			free(board_word);
-		}
+		score += h2_col_score(g, c);
 	}
 	return score;
+}
+
+static int h2_col_score(struct game *g, int col) {
+	static char *prospective_words[MAX_PROSPECTIVE_WORDS] = { 0 };
+	int col_score = 0, height = 0, i = 0, total = 0;
+	while (g->board[col][7 - 1 - height] != BOARD_BLANK) {
+		height++;
+	}
+	if (height == 7) {
+		col_score = COL_SCORE_MIN;
+	} else if (height == 1) {
+		col_score = letter_freqs[g->board[col][7 - 1 - height] - 'A']
+			* (COL_SCORE_MAX / (float) letter_freqs['S' - 'A']) * BASE_SCALE;
+	} else {
+		char *board_word = readBoardWord(
+			&((struct boardWord) { col, 7 - 1, col, 7 - 1 - height })
+		);
+		get_prospective_words(board_word, prospective_words);
+		if (prospective_words[0] == NULL) {
+			// no vertical words are possible in this column
+			col_score = COL_SCORE_MIN * (height / 7.0f);
+		} else {
+			i = 0;
+			while (prospective_words[i] != NULL) {
+				// calculate the average score of prospective words
+				total += wordScore(prospective_words[i]);
+				i++;
+			}
+			// scale the average
+			col_score = (total / (float) i) * (COL_SCORE_MAX / WORD_SCORE_MAX);
+		}
+		free(board_word);
+	}
+	return col_score;
 }
 
 static int get_greedy_normal_move(
