@@ -44,3 +44,26 @@ struct blank_move get_greedy_blank_move(struct game *g) {
 	set_game(g);
 	return best_move;
 }
+
+struct replace_move get_greedy_replace_move(struct game *g) {
+	static struct game sim;
+	char c;
+	int tile_ID, best_score = g->score;
+	struct replace_move best_move = { 0 };
+	set_game(&sim);
+	for (tile_ID = 0; tile_ID < 7 * 7; tile_ID++) {
+		if (g->board[tile_ID / 7][tile_ID % 7] != BOARD_BLANK) {
+			for (c = 'A'; c <= 'Z'; c++) {
+				memcpy(&sim, g, sizeof(struct game));
+				headless_replace_tile(tile_ID, c);
+				if (sim.score >= best_score) {
+					best_move.tile_ID = tile_ID;
+					best_move.letter = c;
+				}
+			}
+		}
+	}
+	// done simulating: restore normal game state
+	set_game(g);
+	return best_move;
+}

@@ -13,8 +13,10 @@ static const struct agent agents[] = {{
 	}, {
 		get_greedy_normal_move, get_greedy_blank_move,
 		get_random_replace_move, "greedy2"
+	}, {
+		get_greedy_normal_move, get_greedy_blank_move,
+		get_greedy_replace_move, "greedy3"
 	}
-
 };
 
 void play_AI_game(struct agent agent, struct game *game) {
@@ -49,7 +51,7 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 	struct agent agent = { 0 };
-	int i, total_score, n_games = atoi(argv[1]);
+	int i, total_score, best_score = 0, n_games = atoi(argv[1]);
 	struct game **ai_games = malloc(n_games * sizeof(struct game *));
 	for (i = 0; i < ARRAY_SIZE(agents); i++) {
 		if (strncmp(argv[2], agents[i].strategy_name,
@@ -70,8 +72,12 @@ int main(int argc, char **argv) {
 		printf("%d\n", ai_games[i]->score);
 	}
 	for (i = 0; i < n_games; i++) {
+		if (ai_games[i]->score > best_score) {
+			best_score = ai_games[i]->score;
+		}
 		total_score += ai_games[i]->score;
 		free_game(ai_games[i]);
 	}
 	printf("Average score: %f\n", (float) total_score / n_games);
+	printf("Best score: %d\n", best_score);
 }

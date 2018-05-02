@@ -469,7 +469,7 @@ int headless_replace_tile(int tile_ID, char new_letter) {
 		fprintf(stderr, "One can only edit a non-blank tile.");
 		return -1;
 	}
-	if (new_letter < 65 || new_letter > 90) {
+	if (new_letter < 'A' || new_letter > 'Z') {
 		fprintf(stderr, "The blank assignment '%c' is invalid.",
 				new_letter);
 		return -1;
