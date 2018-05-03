@@ -281,6 +281,7 @@ struct blank_move get_greedy_blank_move_h2(struct game *g) {
 struct blank_move get_greedy_blank_move_h3(struct game *g) {
 	static struct game sim_h1;
 	struct blank_move move_h1 = get_greedy_blank_move_h1(g);
+	sim_h1 = *g;
 	set_game(&sim_h1);
 	headless_assign_blank(move_h1.letter);
 	headless_drop_tile(move_h1.drop_col);
@@ -335,6 +336,7 @@ struct replace_move get_greedy_replace_move_h2(struct game *g) {
 struct replace_move get_greedy_replace_move_h3(struct game *g) {
 	static struct game sim_h1;
 	struct replace_move move_h1 = get_greedy_replace_move_h1(g);
+	sim_h1 = *g;
 	set_game(&sim_h1);
 	headless_replace_tile(move_h1.tile_ID, move_h1.letter);
 	set_game(g);
