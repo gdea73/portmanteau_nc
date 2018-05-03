@@ -27,7 +27,16 @@ static const struct agent agents[] = {{
 		get_random_replace_move, "sequential_greedyblank"
 	}, {
 		get_greedy_normal_move_h1, get_greedy_blank_move_h1,
-		get_greedy_replace_move_h1, "greedy3"
+		get_greedy_replace_move_h1, "gh1"
+	}, {
+		get_greedy_normal_move_h1, get_random_blank_move,
+		get_random_replace_move, "gh1randrand"
+	}, {
+		get_greedy_normal_move_h2, get_random_blank_move,
+		get_random_replace_move, "gh2randrand"
+	}, {
+		get_greedy_normal_move_h2, get_greedy_blank_move_h2,
+		get_greedy_replace_move_h2, "gh2"
 	}
 };
 
@@ -58,10 +67,18 @@ void play_AI_game(struct agent agent, struct game *game) {
 
 int main(int argc, char **argv) {
 	srand(time(NULL));
-	if (argc != 3) {
-		fprintf(stderr, "usage: %s n_games strategy_name\n", argv[0]);
+	if (argc < 3 || argc > 4) {
+		fprintf(stderr, "usage: %s n_games strategy_name [-v[v[v]]]\n", argv[0]);
 		return -1;
 	}
+	verbosity_level = 0;
+	if (argc == 4) {
+		while (verbosity_level < 2
+		       && strncmp("-vv", argv[3], verbosity_level + 2) == 0) {
+			verbosity_level++;
+		}
+	}
+	printf("verbosity level: %d\n", verbosity_level);
 	struct agent agent = { 0 };
 	int i, total_score = 0, best_score = 0, n_games = atoi(argv[1]);
 	struct game **ai_games = malloc(n_games * sizeof(struct game *));
@@ -80,8 +97,9 @@ int main(int argc, char **argv) {
 	for (i = 0; i < n_games; i++) {
 		ai_games[i] = init_game(1); // all AI games are headless
 		play_AI_game(agent, ai_games[i]);
-		// printf("AI game #%d ended with score: %d\n", i, ai_games[i]->score);
-		printf("%d\n", ai_games[i]->score);
+		if (verbosity_level > 0) {	
+			printf("%d\n", ai_games[i]->score);
+		}
 	}
 	for (i = 0; i < n_games; i++) {
 		if (ai_games[i]->score > best_score) {
@@ -92,4 +110,10 @@ int main(int argc, char **argv) {
 	}
 	printf("Average score: %f\n", (float) total_score / n_games);
 	printf("Best score: %d\n", best_score);
+	// cleanup
+	free(ai_games);
+	if (mdict != NULL) {
+		freeDict(mdict);
+	}
+	freeDict(getDict());
 }

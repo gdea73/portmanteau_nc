@@ -340,14 +340,18 @@ char *readBoardWord(struct boardWord *bw) {
 		for (int r = startRow; r <= endRow; r++) {
 			s[r - startRow] = game->board[endCol][r];
 		}
-		s[endRow - startRow + 2] = '\0';
+		if (s == NULL) {
+			fprintf(stderr, "failed to allocate memory for board word\n");
+		}
 	} else if (startRow == endRow) {
 		// parse word horizontally
 		s = calloc(endCol - startCol + 2, sizeof(char));
 		for (int c = startCol; c <= endCol; c++) {
 			s[c - startCol] = game->board[c][endRow];
 		}
-		s[endCol - startCol + 2] = '\0';
+		if (s == NULL) {
+			fprintf(stderr, "failed to allocate memory for board word\n");
+		}
 	}
 	return s;
 }

@@ -84,21 +84,20 @@ uint8_t binSearch(char **words, char *query, size_t startIdx, size_t endIdx) {
 }
 
 char *reverse(char *s) {
-	size_t len = strlen(s);
+	size_t len = strnlen(s, 7);
 	char *rev; int i;
-	if (!(rev = calloc(len, sizeof(char)))) {
+	if (!(rev = calloc(len + 1, sizeof(char)))) {
 		fprintf(stderr, "failed to calloc to reverse string %s", s);
 	}
 	for (i = 0; i < len; i++) {
 		rev[i] = s[(len - 1) - i];
 	}
-	rev[i] = '\0';
 	return rev;
 }
 
 int wordScore(char *word) {
 	int wordScore = 0;
-	for (int i = 0; i < strlen(word); i++) {
+	for (int i = 0; i < strnlen(word, 7); i++) {
 		wordScore += pointValue(word[i]);
 	}
 	return wordScore * lengthMultipliers[strlen(word)];

@@ -47,6 +47,8 @@
 
 struct game *get_game(void);
 
+struct dictionary *getDict(void);
+
 void set_game(struct game *g);
 
 WINDOW *create_window(int height, int width, int start_y, int start_x);
