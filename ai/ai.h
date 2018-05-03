@@ -38,6 +38,10 @@ struct replace_move get_greedy_replace_move_h1(struct game *game);
 int get_greedy_normal_move_h2(struct game *game);
 struct blank_move get_greedy_blank_move_h2(struct game *game);
 struct replace_move get_greedy_replace_move_h2(struct game *game);
+// greedy strategies -- heuristic 3 (h1 with fallback to h2)
+int get_greedy_normal_move_h3(struct game *game);
+struct blank_move get_greedy_blank_move_h3(struct game *game);
+struct replace_move get_greedy_replace_move_h3(struct game *game);
 
 int get_column_normal_move(struct game *game);
 

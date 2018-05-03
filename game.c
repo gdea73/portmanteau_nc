@@ -430,6 +430,9 @@ int headless_drop_tile(int drop_col) {
 				"a tile replacement operation.");
 		return -1;
 	}
+	if (drop_col < 0 || drop_col > 6) {
+		fprintf(stderr, "Drop column %d out of range [0, 6].\n", drop_col);
+	}
 	int drop_result = process_drop(drop_col);
 	if (drop_result == DROP_SUCCESS) {
 		game->n_moves++;

@@ -37,6 +37,12 @@ static const struct agent agents[] = {{
 	}, {
 		get_greedy_normal_move_h2, get_greedy_blank_move_h2,
 		get_greedy_replace_move_h2, "gh2"
+	}, {
+		get_greedy_normal_move_h3, get_greedy_blank_move_h1,
+		get_greedy_replace_move_h1, "gh3gh1gh1"
+	}, {
+		get_greedy_normal_move_h3, get_greedy_blank_move_h3,
+		get_greedy_replace_move_h3, "gh3"
 	}
 };
 
