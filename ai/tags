@@ -1,0 +1,224 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AI_FILES	../Makefile	/^AI_FILES=ai\/*.c$/;"	m
+AI_H	../ai/ai.h	2;"	d
+ARRAY_SIZE	../inc/mainMenu.h	8;"	d
+ARRAY_SIZE	../inc/utils.h	4;"	d
+ARRAY_SIZE	../mainMenu.c	3;"	d	file:
+BASE_LEVEL_THRESHOLD	../inc/game.h	46;"	d
+BASE_SCALE	../ai/greedy.c	12;"	d	file:
+BLANK_MESSAGE	../inc/game.h	38;"	d
+BOARD_BLANK	../inc/game.h	14;"	d
+BOARD_HEIGHT	../inc/game.h	16;"	d
+BOARD_HEIGHT	../inc/game_struct.h	14;"	d
+BOARD_WIDTH	../inc/game.h	15;"	d
+BOARD_WIDTH	../inc/game_struct.h	13;"	d
+BOARD_WIN_X	../inc/game.h	17;"	d
+BOARD_WIN_Y	../inc/game.h	18;"	d
+CFLAGS	../Makefile	/^CFLAGS=-Wall -g -std=c11 -I.\/inc -I.\/ai$/;"	m
+CHAIN_DELAY_MS	../inc/game.h	33;"	d
+CHAR_TABLE_SIZE	../inc/game_struct.h	15;"	d
+CHAR_TABLE_SIZE	../inc/letter.h	8;"	d
+COL_SCORE_MAX	../ai/greedy.c	9;"	d	file:
+COL_SCORE_MIN	../ai/greedy.c	8;"	d	file:
+CTRLD	../inc/mainMenu.h	9;"	d
+CTRLD	../mainMenu.c	4;"	d	file:
+DIR_LEFT	../inc/game.h	22;"	d
+DIR_RIGHT	../inc/game.h	21;"	d
+DIR_STAY	../inc/game.h	23;"	d
+DROP_BLANK	../inc/letter.h	9;"	d
+DROP_COL_FULL	../inc/game.h	76;"	d
+DROP_GAME_OVER	../inc/game.h	77;"	d
+DROP_SUCCESS	../inc/game.h	75;"	d
+EMPTY_COL_SCORE	../ai/greedy.c	13;"	d	file:
+ENTER	../inc/mainMenu.h	10;"	d
+ENTER	../mainMenu.c	5;"	d	file:
+GAME_H	../inc/game.h	2;"	d
+GAME_OVER_MESSAGE	../inc/game.h	41;"	d
+GAME_STRUCT_H	../inc/game_struct.h	2;"	d
+GRAV_DELAY_MS	../inc/game.h	32;"	d
+LDFLAGS	../Makefile	/^LDFLAGS=-lncurses -lmenu -lm$/;"	m
+LETTER_H	../inc/letter.h	2;"	d
+MAINMENU_H	../inc/mainMenu.h	2;"	d
+MAX_BOARD_WORDS	../inc/game.h	24;"	d
+MAX_CHAIN	../inc/game.h	44;"	d
+MAX_PROSPECTIVE_WORDS	../ai/greedy.c	4;"	d	file:
+MESSAGE_Y	../inc/game.h	37;"	d
+MIN_COLS	../inc/game.h	28;"	d
+MIN_LINES	../inc/game.h	27;"	d
+MIN_WORD_LENGTH	../inc/words.h	11;"	d
+MIRRORED_DICT_FILE	../ai/greedy.c	5;"	d	file:
+NORMAL	../inc/game_struct.h	/^	NORMAL,		\/\/ normal gameplay; no replacement operation in progress$/;"	e	enum:replace_status
+N_RECENT_BREAKS	../inc/game.h	25;"	d
+N_RECENT_BREAKS	../inc/game_struct.h	16;"	d
+PAD_X	../inc/game.h	20;"	d
+PAD_Y	../inc/game.h	19;"	d
+PORTMANTEAU_FILES	../Makefile	/^PORTMANTEAU_FILES=utils.c letter.c mainMenu.c game.c scores.c words.c$/;"	m
+PORTMANTEAU_H	../inc/portmanteau.h	2;"	d
+REPLACE	../inc/game_struct.h	/^	REPLACE		\/\/ the user is selecting the new letter for the chosen tile$/;"	e	enum:replace_status
+REPLACE_DELAY_MS	../inc/game.h	34;"	d
+REPLACE_MESSAGE	../inc/game.h	40;"	d
+SCORES_H	../inc/scores.h	2;"	d
+SELECT	../inc/game_struct.h	/^	SELECT,		\/\/ the user is selecting the tile to edit$/;"	e	enum:replace_status
+SELECT_MESSAGE	../inc/game.h	39;"	d
+STRATEGY_NAME_MAX_LENGTH	../ai/ai.h	4;"	d
+UTILS_H	../inc/utils.h	2;"	d
+WORDSBS	../inc/words.h	10;"	d
+WORDS_H	../inc/words.h	2;"	d
+WORD_SCORE_MAX	../ai/greedy.c	10;"	d	file:
+_POSIX_C_SOURCE	../inc/game.h	4;"	d
+_POSIX_C_SOURCE	../inc/words.h	4;"	d
+agent	../ai/ai.h	/^struct agent {$/;"	s
+agents	../ai/ai.c	/^static const struct agent agents[] = {{$/;"	v	typeref:struct:agent	file:
+binSearch	../words.c	/^uint8_t binSearch(char **words, char *query, size_t startIdx, size_t endIdx) {$/;"	f
+binSearch	../words2.c	/^uint8_t binSearch(char **words, char *query, size_t startIdx, size_t endIdx) {$/;"	f
+bin_substring_search	../ai/greedy.c	/^static size_t bin_substring_search($/;"	f	file:
+blank_move	../ai/ai.h	/^struct blank_move {$/;"	s
+board	../inc/game_struct.h	/^	char board[BOARD_WIDTH][BOARD_HEIGHT];$/;"	m	struct:game
+boardGravity	../game.c	/^void boardGravity(void) {$/;"	f
+boardWord	../inc/words.h	/^struct boardWord {$/;"	s
+boardwin	../game.c	/^WINDOW *mainwin, *boardwin;$/;"	v
+boardwin_pos_x	../game.c	/^int selectedCol = 3, boardwin_pos_x;$/;"	v
+break_board_word	../game.c	/^void break_board_word(struct boardWord *bw) {$/;"	f
+break_words	../game.c	/^void break_words(int chainLevel) {$/;"	f
+c	../inc/mainMenu.h	/^int c, optionsCount, i;$/;"	v
+c	../mainMenu.c	/^int c, optionsCount, i;$/;"	v
+chainMultipliers	../words.c	/^const int chainMultipliers[] = {1, 2, 5, 10, 17, 26, 37};$/;"	v
+chainMultipliers	../words2.c	/^const int chainMultipliers[] = {1, 2, 5, 10, 17, 26, 37};$/;"	v
+chain_delay	../game.c	/^                      chain_delay = {0, 1000000L * CHAIN_DELAY_MS},$/;"	v	typeref:struct:
+charTable	../letter.c	/^char charTable[CHAR_TABLE_SIZE];$/;"	v
+charTablePopulated	../letter.c	/^int charTablePopulated = 0;$/;"	v
+clear_message	../game.c	/^void clear_message(void) {$/;"	f
+column	../ai/sequential.c	/^int column = -1;$/;"	v
+create_window	../game.c	/^WINDOW *create_window(int height, int width, int start_y, int start_x) {$/;"	f
+dictionary	../inc/words.h	/^struct dictionary {$/;"	s
+displayMenu	../mainMenu.c	/^const char *displayMenu() {$/;"	f
+draw_board	../game.c	/^int draw_board(void) {$/;"	f
+draw_drop_letter	../game.c	/^void draw_drop_letter(int direction) {$/;"	f
+draw_message	../game.c	/^void draw_message(const char *message) {$/;"	f
+draw_recent_breaks	../game.c	/^void draw_recent_breaks(void) {$/;"	f
+draw_score	../game.c	/^void draw_score(void) {$/;"	f
+dropGravity	../game.c	/^void dropGravity(int dropCol) {$/;"	f
+drop_col	../ai/ai.h	/^	int drop_col;$/;"	m	struct:blank_move
+drop_letter	../inc/game_struct.h	/^	char drop_letter;$/;"	m	struct:game
+endCol	../inc/words.h	/^	int endCol;$/;"	m	struct:boardWord
+endRow	../inc/words.h	/^	int endRow;$/;"	m	struct:boardWord
+freeDict	../words.c	/^void freeDict(struct dictionary *dict) {$/;"	f
+freeDict	../words2.c	/^void freeDict(struct dictionary *dict) {$/;"	f
+freeMenu	../mainMenu.c	/^void freeMenu(void) {$/;"	f
+free_game	../game.c	/^void free_game(struct game *game) {$/;"	f
+game	../game.c	/^static struct game *game;$/;"	v	typeref:struct:game	file:
+game	../inc/game_struct.h	/^struct game {$/;"	s
+game_over	../inc/game_struct.h	/^	uint8_t game_over;$/;"	m	struct:game
+generate_tile_set	../letter.c	/^void generate_tile_set(char *tile_set) {$/;"	f
+getDict	../game.c	/^struct dictionary *getDict(void) {$/;"	f
+get_blank_move	../ai/ai.h	/^	struct blank_move (*get_blank_move)(struct game *game);$/;"	m	struct:agent	typeref:struct:agent::get_blank_move
+get_column_normal_move	../ai/min_column.c	/^int get_column_normal_move(struct game *game) {$/;"	f
+get_game	../game.c	/^struct game *get_game(void) {$/;"	f
+get_greedy_best_drop_col	../agents/greedy_best_first.c	/^int get_greedy_best_drop_col(struct game *g) {$/;"	f
+get_greedy_blank_move	../ai/greedy.c	/^static struct blank_move get_greedy_blank_move($/;"	f	file:
+get_greedy_blank_move_h1	../ai/greedy.c	/^struct blank_move get_greedy_blank_move_h1(struct game *g) {$/;"	f
+get_greedy_blank_move_h2	../ai/greedy.c	/^struct blank_move get_greedy_blank_move_h2(struct game *g) {$/;"	f
+get_greedy_normal_move	../ai/greedy.c	/^static int get_greedy_normal_move($/;"	f	file:
+get_greedy_normal_move_h1	../ai/greedy.c	/^int get_greedy_normal_move_h1(struct game *g) {$/;"	f
+get_greedy_normal_move_h2	../ai/greedy.c	/^int get_greedy_normal_move_h2(struct game *g) {$/;"	f
+get_greedy_replace_move	../ai/greedy.c	/^static struct replace_move get_greedy_replace_move($/;"	f	file:
+get_greedy_replace_move_h1	../ai/greedy.c	/^struct replace_move get_greedy_replace_move_h1(struct game *g) {$/;"	f
+get_greedy_replace_move_h2	../ai/greedy.c	/^struct replace_move get_greedy_replace_move_h2(struct game *g) {$/;"	f
+get_next_drop_letter	../letter.c	/^char get_next_drop_letter(struct game *game) {$/;"	f
+get_normal_move	../ai/ai.h	/^	int (*get_normal_move)(struct game *game);$/;"	m	struct:agent
+get_prospective_words	../ai/greedy.c	/^static void get_prospective_words(char *substring, char **output) {$/;"	f	file:
+get_random_blank_move	../ai/random.c	/^struct blank_move get_random_blank_move(struct game *game) {$/;"	f
+get_random_normal_move	../ai/random.c	/^int get_random_normal_move(struct game *game) {$/;"	f
+get_random_replace_move	../ai/random.c	/^struct replace_move get_random_replace_move(struct game *game) {$/;"	f
+get_replace_move	../ai/ai.h	/^	struct replace_move (*get_replace_move)(struct game *game);$/;"	m	struct:agent	typeref:struct:agent::get_replace_move
+get_sequential_normal_move	../ai/sequential.c	/^int get_sequential_normal_move(struct game *game) {$/;"	f
+gravity_delay	../game.c	/^const struct timespec gravity_delay = {0, 1000000L * GRAV_DELAY_MS},$/;"	v	typeref:struct:timespec
+greedy_free	../agents/greedy_best_first.c	/^void greedy_free(void) {$/;"	f
+greedy_play_single_game	../agents/greedy_best_first.c	/^struct game *greedy_play_single_game(void) {$/;"	f
+h1	../ai/greedy.c	/^static int h1(struct game *g) {$/;"	f	file:
+h2	../ai/greedy.c	/^static int h2(struct game *g) {$/;"	f	file:
+h2_col_score	../ai/greedy.c	/^static int h2_col_score(struct game *g, int col) {$/;"	f	file:
+headless_assign_blank	../game.c	/^int headless_assign_blank(char blank_assignment) {$/;"	f
+headless_drop_tile	../game.c	/^int headless_drop_tile(int drop_col) {$/;"	f
+headless_replace_tile	../game.c	/^int headless_replace_tile(int tile_ID, char new_letter) {$/;"	f
+i	../inc/mainMenu.h	/^int c, optionsCount, i;$/;"	v
+i	../mainMenu.c	/^int c, optionsCount, i;$/;"	v
+index_of_substring	../ai/greedy.c	/^static size_t index_of_substring(struct dictionary *mdict, char *substring) {$/;"	f	file:
+initCharTable	../letter.c	/^void initCharTable(void) {$/;"	f
+initMenu	../mainMenu.c	/^void initMenu(void) {$/;"	f
+initTUI	../portmanteau.c	/^void initTUI(void) {$/;"	f
+init_game	../game.c	/^struct game *init_game(uint8_t is_headless) {$/;"	f
+init_windows	../game.c	/^int init_windows(void) {$/;"	f
+isTileReplacement	../game.c	/^uint8_t isTileReplacement(void) {$/;"	f
+isValidWord	../words.c	/^uint8_t isValidWord(struct dictionary *dict, char *sz) {$/;"	f
+isValidWord	../words2.c	/^uint8_t isValidWord(struct dictionary *dict, char *sz) {$/;"	f
+is_headless	../inc/game_struct.h	/^	uint8_t is_headless;$/;"	m	struct:game
+items	../inc/mainMenu.h	/^ITEM **items;$/;"	v
+items	../mainMenu.c	/^ITEM **items;$/;"	v
+length	../inc/words.h	/^	int length;$/;"	m	struct:dictionary
+lengthMultipliers	../words.c	/^const int lengthMultipliers[] = {0, 0, 0, 9, 23, 49, 73, 256};$/;"	v
+lengthMultipliers	../words2.c	/^const int lengthMultipliers[] = {0, 0, 0, 9, 23, 49, 73, 256};$/;"	v
+letter	../ai/ai.h	/^	char letter;$/;"	m	struct:blank_move
+letter	../ai/ai.h	/^	char letter;$/;"	m	struct:replace_move
+letter_freqs	../ai/greedy.c	/^static int letter_freqs[] = {$/;"	v	file:
+level	../inc/game_struct.h	/^	int level;$/;"	m	struct:game
+loadDict	../words.c	/^struct dictionary *loadDict(char *filename) {$/;"	f
+loadDict	../words2.c	/^struct dictionary *loadDict(char *filename) {$/;"	f
+longest_chain	../inc/game_struct.h	/^	int longest_chain;$/;"	m	struct:game
+longest_word	../inc/game_struct.h	/^	int longest_word;$/;"	m	struct:game
+main	../ai/ai.c	/^int main(int argc, char **argv) {$/;"	f
+main	../portmanteau.c	/^int main(int argc, char **argv) {$/;"	f
+mainwin	../game.c	/^WINDOW *mainwin, *boardwin;$/;"	v
+mdict	../ai/ai.h	/^struct dictionary *mdict;$/;"	v	typeref:struct:dictionary
+mdict	../ai/greedy.c	/^struct dictionary *mdict = NULL;$/;"	v	typeref:struct:dictionary
+menu	../inc/mainMenu.h	/^MENU *menu;$/;"	v
+menu	../mainMenu.c	/^MENU *menu;$/;"	v
+min_column_play_single_game	../agents/min_column.c	/^struct game *min_column_play_single_game(void) {$/;"	f
+n_moves	../inc/game_struct.h	/^	int n_moves;$/;"	m	struct:game
+n_tiles_broken	../inc/game_struct.h	/^	int n_tiles_broken;$/;"	m	struct:game
+n_words_broken	../inc/game_struct.h	/^	int n_words_broken;$/;"	m	struct:game
+next_level_threshold	../inc/game_struct.h	/^	int next_level_threshold;$/;"	m	struct:game
+obfuscate_tile_set	../utils.c	/^void obfuscate_tile_set(char *tile_set, int n_moves) {$/;"	f
+options	../mainMenu.c	/^char *options[] = {$/;"	v
+optionsCount	../inc/mainMenu.h	/^int c, optionsCount, i;$/;"	v
+optionsCount	../mainMenu.c	/^int c, optionsCount, i;$/;"	v
+play	../game.c	/^void play(void) {$/;"	f
+play_AI_game	../ai/ai.c	/^void play_AI_game(struct agent agent, struct game *game) {$/;"	f
+pointValue	../letter.c	/^int pointValue(char c) {$/;"	f
+pointValues	../letter.c	/^const int pointValues[] = {$/;"	v
+process_drop	../game.c	/^int process_drop(int col) {$/;"	f
+push_recent_break	../game.c	/^void push_recent_break(char *word) {$/;"	f
+quantities	../letter.c	/^const int quantities[] = {$/;"	v
+rand_int	../utils.c	/^int rand_int(int max) {$/;"	f
+random_play_single_game	../agents/random.c	/^struct game *random_play_single_game(void) {$/;"	f
+readBoardWord	../game.c	/^char *readBoardWord(struct boardWord *bw) {$/;"	f
+recentBreaks	../game.c	/^char *recentBreaks[N_RECENT_BREAKS];$/;"	v
+recent_breaks	../inc/game_struct.h	/^	char *recent_breaks[N_RECENT_BREAKS];$/;"	m	struct:game
+replace_delay	../game.c	/^                      replace_delay = {0, 1000000L * REPLACE_DELAY_MS};$/;"	v	typeref:struct:
+replace_move	../ai/ai.h	/^struct replace_move {$/;"	s
+replace_status	../inc/game_struct.h	/^	enum replace_status replace_status;$/;"	m	struct:game	typeref:enum:game::replace_status
+replace_status	../inc/game_struct.h	/^enum replace_status {$/;"	g
+replace_tile_ID	../inc/game_struct.h	/^	int replace_tile_ID;$/;"	m	struct:game
+resetScores	../scores.c	/^void resetScores(void) {$/;"	f
+reverse	../words.c	/^char *reverse(char *s) {$/;"	f
+reverse	../words2.c	/^char *reverse(char *s) {$/;"	f
+score	../inc/game_struct.h	/^	int score;$/;"	m	struct:game
+scores	../scores.c	/^void scores(void) {$/;"	f
+selectedCol	../game.c	/^int selectedCol = 3, boardwin_pos_x;$/;"	v
+selectedItem	../inc/mainMenu.h	/^ITEM *selectedItem;$/;"	v
+selectedItem	../mainMenu.c	/^ITEM *selectedItem;$/;"	v
+set_game	../game.c	/^void set_game(struct game *g) {$/;"	f
+startCol	../inc/words.h	/^	int startCol;$/;"	m	struct:boardWord
+startRow	../inc/words.h	/^	int startRow;$/;"	m	struct:boardWord
+strategy_name	../ai/ai.h	/^	const char *strategy_name;$/;"	m	struct:agent
+substring_compare	../ai/greedy.c	/^static uint8_t substring_compare(char *word, char *substring) {$/;"	f	file:
+tile_ID	../ai/ai.h	/^	int tile_ID;$/;"	m	struct:replace_move
+tile_set	../inc/game_struct.h	/^	char tile_set[CHAR_TABLE_SIZE];$/;"	m	struct:game
+wordScore	../words.c	/^int wordScore(char *word) {$/;"	f
+wordScore	../words2.c	/^int wordScore(char *word) {$/;"	f
+words	../inc/words.h	/^	char **words;$/;"	m	struct:dictionary

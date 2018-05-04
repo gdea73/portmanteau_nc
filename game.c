@@ -27,6 +27,10 @@ struct dictionary *getDict(void) {
 }
 
 void push_recent_break(char *word) {
+	if (game->recent_breaks[0] == NULL) {
+		// we are simulating a potential move; don't log the recent break
+		return;
+	}
 	int i;
 	if (strlen(word) > game->longest_word) {
 		game->longest_word = strlen(word);

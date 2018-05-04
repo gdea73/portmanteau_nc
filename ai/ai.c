@@ -1,6 +1,8 @@
 #include "ai.h"
 #include "game.h"
 
+static void print_game_stats(struct game *game);
+
 static const struct agent agents[] = {{
 		get_random_normal_move, get_random_blank_move,
 		get_random_replace_move, "random"
@@ -71,6 +73,21 @@ void play_AI_game(struct agent agent, struct game *game) {
 	}
 }
 
+static void print_game_stats(struct game *game) {
+	printf("score: %d\n", game->score);
+	printf("n_moves: %d\n", game->n_moves);
+	printf("level: %d\n", game->level);
+	printf("longest_chain: %d\n", game->longest_chain);
+	printf("longest_word: %d\n", game->longest_word);
+	printf("n_tiles_broken: %d\n", game->n_tiles_broken);
+	printf("n_words_broken: %d\n", game->n_words_broken);
+	printf("recent breaks:\n");
+	for (int i = 0; i < N_RECENT_BREAKS && game->recent_breaks[i]; i++) {
+		printf("\t%s\n", game->recent_breaks[i]);
+	}
+	print_board(game->board);
+}
+
 int main(int argc, char **argv) {
 	srand(time(NULL));
 	if (argc < 3 || argc > 4) {
@@ -105,6 +122,11 @@ int main(int argc, char **argv) {
 		play_AI_game(agent, ai_games[i]);
 		if (verbosity_level > 0) {	
 			printf("%d\n", ai_games[i]->score);
+		}
+	}
+	if (n_games < 10 && verbosity_level > 0) {
+		for (i = 0; i < n_games; i++) {
+			print_game_stats(ai_games[i]);
 		}
 	}
 	for (i = 0; i < n_games; i++) {

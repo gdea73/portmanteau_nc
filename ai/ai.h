@@ -26,6 +26,8 @@ struct agent {
 	const char *strategy_name;
 };
 
+void print_board(char board[7][7]);
+
 // random strategies
 int get_random_normal_move(struct game *game);
 struct blank_move get_random_blank_move(struct game *game);

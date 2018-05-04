@@ -6,7 +6,7 @@
 
 // constants regarding heuristic function h2() (and h3())
 #define COL_SCORE_LO -100
-#define COL_SCORE_HI 100
+#define COL_SCORE_HI 200
 #define WORD_SCORE_HI 2500
 #define COL_SCORE_SHORT 70
 
@@ -65,6 +65,17 @@ static struct replace_move get_greedy_replace_move(
 	struct game *g, int (*heuristic)(struct game *g)
 );
 
+void print_board(char board[7][7]) {
+	int c, r;
+	for (r = 0; r < 7; r++) {
+		for (c = 0; c < 7; c++) {
+			printf("%-5c", board[c][r]);
+		}
+		printf("\n");
+	}
+}
+
+
 static int index_of_substring(struct dictionary *mdict, char *substring) {
 	return bin_substring_search(mdict->words, substring, 0, mdict->length - 1);
 }
@@ -91,18 +102,6 @@ static int bin_substring_search(
 	}
 	return m_idx;
 }
-
-/* static uint8_t substring_compare(char *word, char *substring) {
-	int l = 0;
-	// printf("comparing word %s and substring %s\n", word, substring);
-	while (word && substring && l < 7) {
-		if (*word != *substring) {
-			return 0;
-		}
-		l++; word++; substring++;
-	}
-	return 1;
-} */
 
 static void get_prospective_words(char *substring, char **output) {
 	// printf("getting prospective words for substring %s\n", substring);
@@ -147,16 +146,6 @@ static int h1(struct game *g) {
 
 int get_greedy_normal_move_h1(struct game *g) {
 	return get_greedy_normal_move(g, h1);
-}
-
-static void print_board(char board[7][7]) {
-	int c, r;
-	for (r = 0; r < 7; r++) {
-		for (c = 0; c < 7; c++) {
-			printf("%-5c", board[c][r]);
-		}
-		printf("\n");
-	}
 }
 
 // h2(game): "column scoring" method
@@ -228,6 +217,7 @@ static int h2_col_score(struct game *g, int col) {
 int get_greedy_normal_move_h3(struct game *g) {
 	static struct game sim_h1;
 	sim_h1 = *g;
+	memset(sim_h1.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 	int best_h1_col = get_greedy_normal_move_h1(g);
 	set_game(&sim_h1);
 	headless_drop_tile(best_h1_col);
@@ -253,6 +243,7 @@ static int get_greedy_normal_move(
 		if (g->board[i][0] == BOARD_BLANK) {
 			// memcpy(&sim, g, sizeof(struct game));
 			sim = *g;
+			memset(sim.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 			headless_drop_tile(i);
 			h = heuristic(&sim);
 			if (verbosity_level > 1) printf("col %d sim score: %d\n", i, h);
@@ -282,6 +273,7 @@ struct blank_move get_greedy_blank_move_h3(struct game *g) {
 	static struct game sim_h1;
 	struct blank_move move_h1 = get_greedy_blank_move_h1(g);
 	sim_h1 = *g;
+	memset(sim_h1.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 	set_game(&sim_h1);
 	headless_assign_blank(move_h1.letter);
 	headless_drop_tile(move_h1.drop_col);
@@ -310,6 +302,7 @@ static struct blank_move get_greedy_blank_move(
 			for (c = 'A'; c <= 'Z'; c++) {
 				// memcpy(&sim, g, sizeof(struct game));
 				sim = *g;
+				memset(sim.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 				headless_assign_blank(c);
 				headless_drop_tile(i);
 				if (sim.score > best_score) {
@@ -337,6 +330,7 @@ struct replace_move get_greedy_replace_move_h3(struct game *g) {
 	static struct game sim_h1;
 	struct replace_move move_h1 = get_greedy_replace_move_h1(g);
 	sim_h1 = *g;
+	memset(sim_h1.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 	set_game(&sim_h1);
 	headless_replace_tile(move_h1.tile_ID, move_h1.letter);
 	set_game(g);
@@ -364,6 +358,7 @@ static struct replace_move get_greedy_replace_move(
 			for (c = 'A'; c <= 'Z'; c++) {
 				// memcpy(&sim, g, sizeof(struct game));
 				sim = *g;
+				memset(sim.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 				headless_replace_tile(tile_ID, c);
 				if (sim.score > best_score) {
 					best_move.tile_ID = tile_ID;
