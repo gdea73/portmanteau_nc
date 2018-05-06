@@ -3,11 +3,20 @@
 
 #define STRATEGY_NAME_MAX_LENGTH 80
 
+// constants regarding heuristic function h2() (and h3())
+#define COL_SCORE_LO -100
+#define COL_SCORE_HI 40
+#define WORD_SCORE_HI 1000
+// the higher this ratio, the greater the AI values building
+// high-scoring words relative to keeping the board clear
+#define COL_SCORE_SCALE COL_SCORE_HI / (float) WORD_SCORE_HI
+#define COL_SCORE_SHORT 50
+
 #include "game.h"
 #include "utils.h"
 
 struct dictionary *mdict;
-int verbosity_level;
+int verbosity_level, n_games;
 
 struct blank_move {
 	char letter;

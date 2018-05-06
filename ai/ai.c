@@ -51,21 +51,39 @@ static const struct agent agents[] = {{
 void play_AI_game(struct agent agent, struct game *game) {
 	struct blank_move blank_move;
 	struct replace_move replace_move;
+	int normal_drop_col;
+	uint8_t print_game = (verbosity_level > 1 && n_games < 10);
 	set_game(game);
 	while (!game->game_over) {
+		if (print_game) {
+			printf("score: %d; letter: %c\n", game->score, game->drop_letter);
+			print_board(game->board);
+		}
 		if (game->replace_status == NORMAL) {
 			if (game->drop_letter == DROP_BLANK) {
 				// BLANK strategy
 				blank_move = agent.get_blank_move(game);
+				if (print_game) {
+					printf("(blank) move: %c to col %d\n", blank_move.letter,
+						blank_move.drop_col);
+				}
 				headless_assign_blank(blank_move.letter);
 				headless_drop_tile(blank_move.drop_col);
 			} else {
 				// NORMAL strategy
-				headless_drop_tile(agent.get_normal_move(game));
+				normal_drop_col = agent.get_normal_move(game);
+				if (print_game) {
+					printf("(normal) move: %d\n", normal_drop_col);
+				}
+				headless_drop_tile(normal_drop_col);
 			}
 		} else if (game->replace_status == SELECT) {
 			// REPLACE strategy
 			replace_move = agent.get_replace_move(game);
+			if (print_game) {
+				printf("(replace) move: %c to ID %d\n", replace_move.letter,
+					replace_move.tile_ID);
+			}
 			headless_replace_tile(replace_move.tile_ID, replace_move.letter);
 		} else {
 			fprintf(stderr, "replace_status shouldn't be SELECT for AI\n");
@@ -96,14 +114,16 @@ int main(int argc, char **argv) {
 	}
 	verbosity_level = 0;
 	if (argc == 4) {
-		while (verbosity_level < 2
-		       && strncmp("-vv", argv[3], verbosity_level + 2) == 0) {
+		while (verbosity_level < 3
+		       && strncmp("-vvv", argv[3], verbosity_level + 2) == 0) {
 			verbosity_level++;
 		}
 	}
 	printf("verbosity level: %d\n", verbosity_level);
 	struct agent agent = { 0 };
-	int i, total_score = 0, best_score = 0, n_games = atoi(argv[1]);
+	int i, total_score = 0, best_score = 0;
+	n_games = atoi(argv[1]);
+	float average_score = 0.0f, std_dev = 0.0f;
 	struct game **ai_games = malloc(n_games * sizeof(struct game *));
 	for (i = 0; i < ARRAY_SIZE(agents); i++) {
 		if (strncmp(argv[2], agents[i].strategy_name,
@@ -134,9 +154,16 @@ int main(int argc, char **argv) {
 			best_score = ai_games[i]->score;
 		}
 		total_score += ai_games[i]->score;
+	}
+	average_score = total_score / (float) n_games;
+	// calculate the standard deviation
+	for (i = 0; i < n_games; i++) {
+		std_dev += pow(ai_games[i]->score - average_score, 2);
 		free_game(ai_games[i]);
 	}
-	printf("Average score: %f\n", (float) total_score / n_games);
+	std_dev = sqrt(std_dev / (float) n_games);
+	printf("Average score: %f\n", average_score);
+	printf("Standard deviation: %f\n", std_dev);
 	printf("Best score: %d\n", best_score);
 	// cleanup
 	free(ai_games);

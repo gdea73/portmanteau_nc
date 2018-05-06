@@ -4,43 +4,6 @@
 #define MAX_PROSPECTIVE_WORDS 200
 #define MIRRORED_DICT_FILE "./words_mirrored.txt"
 
-// constants regarding heuristic function h2() (and h3())
-#define COL_SCORE_LO -100
-#define COL_SCORE_HI 200
-#define WORD_SCORE_HI 2500
-#define COL_SCORE_SHORT 70
-
-// these were precalculated by counting occurrences in words_mirrored.txt;
-// e.g., :%s/^A.*$//gn counts all words beginning or ending with 'A'.
-static int letter_freqs[] = {
-	4685,	// A  
-	3929, 	// B
-	5189, 	// C
-	8217, 	// D
-	7522, 	// E
-	2728, 	// F
-	4777, 	// G
-	3166, 	// H
-	1582, 	// I
-	789, 	// J
-	1803, 	// K
-	4083, 	// L
-	3688, 	// M
-	3625, 	// N
-	2129, 	// O
-	4448, 	// P
-	296, 	// Q
-	7493, 	// R
-	22059,	// S
-	6250, 	// T
-	1259, 	// U
-	951, 	// V
-	1994, 	// W
-	309, 	// X
-	4225, 	// Y
-	406, 	// Z
-};
-
 struct dictionary *mdict = NULL;
 
 static int h1(struct game *g);
@@ -153,13 +116,13 @@ static int h2(struct game *g) {
 	int score = 0, c;
 	for (c = 0; c < 7; c++) {
 		int col_score = h2_col_score(g, c);
-		if (verbosity_level > 1) {
+		if (verbosity_level > 2) {
 			// print every column's score
 			printf("%-5d", col_score);
 		}
 		score += col_score;
 	}
-	if (verbosity_level > 1) {
+	if (verbosity_level > 2) {
 		printf("\n");
 		print_board(g->board);
 		printf("board \"score\": %d\n\n", score);
@@ -204,7 +167,7 @@ static int h2_col_score(struct game *g, int col) {
 			}
 			// scale the average according to maximum word score
 			int average_score = (total / (float) i);
-			col_score = average_score * (COL_SCORE_HI / (float) WORD_SCORE_HI);
+			col_score = average_score * COL_SCORE_SCALE;
 			// scale it according to column height
 			// col_score *= height / 6.0f;
 		}
@@ -224,11 +187,11 @@ int get_greedy_normal_move_h3(struct game *g) {
 	set_game(g);
 	if (sim_h1.score > g->score) {
 		// h1's best move breaks at least one word
-		if (verbosity_level > 1) printf("h1 had best score: %d\n", sim_h1.score);
+		if (verbosity_level > 2) printf("h1 had best score: %d\n", sim_h1.score);
 		return best_h1_col;
 	}
 	// all moves are equal w.r.t. h1 score; use h2
-	if (verbosity_level > 1) printf("fallback to h2\n");
+	if (verbosity_level > 2) printf("fallback to h2\n");
 	return get_greedy_normal_move_h2(g);
 }
 
@@ -246,16 +209,16 @@ static int get_greedy_normal_move(
 			memset(sim.recent_breaks, 0, N_RECENT_BREAKS * sizeof(char *));
 			headless_drop_tile(i);
 			h = heuristic(&sim);
-			if (verbosity_level > 1) printf("col %d sim score: %d\n", i, h);
+			if (verbosity_level > 2) printf("col %d sim score: %d\n", i, h);
 			if (h > best_score) {
-				if (verbosity_level > 1) printf("new best score: %d\n", h);
+				if (verbosity_level > 2) printf("new best score: %d\n", h);
 				best_col = i;
 				best_score = h;
 			}
 		}
 	}
 	set_game(g);
-	if (verbosity_level > 1) {
+	if (verbosity_level > 2) {
 		printf("best column: %d; best score: %d\n", best_col, best_score);
 	}
 	return best_col;
@@ -280,11 +243,11 @@ struct blank_move get_greedy_blank_move_h3(struct game *g) {
 	set_game(g);
 	if (sim_h1.score > g->score) {
 		// h1's best move breaks at least one word
-		if (verbosity_level > 1) printf("h1 had best score: %d\n", sim_h1.score);
+		if (verbosity_level > 2) printf("h1 had best score: %d\n", sim_h1.score);
 		return move_h1;
 	}
 	// all moves are equal w.r.t. h1 score; use h2
-	if (verbosity_level > 1) printf("fallback to h2\n");
+	if (verbosity_level > 2) printf("fallback to h2\n");
 	return get_greedy_blank_move_h2(g);
 }
 
@@ -336,11 +299,11 @@ struct replace_move get_greedy_replace_move_h3(struct game *g) {
 	set_game(g);
 	if (sim_h1.score > g->score) {
 		// h1's best move breaks at least one word
-		if (verbosity_level > 1) printf("h1 had best score: %d\n", sim_h1.score);
+		if (verbosity_level > 2) printf("h1 had best score: %d\n", sim_h1.score);
 		return move_h1;
 	}
 	// all moves are equal w.r.t. h1 score; use h2
-	if (verbosity_level > 1) printf("fallback to h2\n");
+	if (verbosity_level > 2) printf("fallback to h2\n");
 	return get_greedy_replace_move_h2(g);
 }
 
@@ -375,7 +338,7 @@ static struct replace_move get_greedy_replace_move(
 			best_score - g->score
 		);
 	}
-	if (verbosity_level > 1) {
+	if (verbosity_level > 2) {
 		printf(
 			"replacement: %d from %c to %c\n", best_move.tile_ID,
 			g->board[best_move.tile_ID / 7][best_move.tile_ID % 7],
